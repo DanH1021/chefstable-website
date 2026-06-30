@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop | Chef's Table Catering | Easter Kits &amp; More</title>
+  <meta name="description" content="Order Chef's Table specialty items online — Easter Brunch Meal Kits, house-made pickles, and seasonal offerings. Secure checkout via Stripe.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Lato:wght@400;700&family=Oswald:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <a href="index.html" class="logo-link" aria-label="Chef's Table Catering - Return to homepage">
+          <img src="logo.jpeg" alt="Chef's Table Catering" class="site-logo" width="140" height="70">
+        </a>
+        <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer" class="gph-tagline">
+          A Great Plains Hospitality Company<span class="sr-only"> (opens in new tab)</span>
+        </a>
+      </div>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">
+        <span class="hamburger" aria-hidden="true"></span>
+      </button>
+      <nav id="primary-nav" aria-label="Primary navigation">
+        <ul role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Our Menu</a></li>
+          <li><a href="bar-catering.html">Bar Catering</a></li>
+          <li><a href="venue-partners.html">Venue Partners</a></li>
+          <li><a href="shop.html" aria-current="page">Shop</a></li>
+          <!-- Gallery hidden until photos ready -->
+          <li><a href="testimonials.html">Testimonials</a></li>
+          <li class="nav-cta"><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+
+    <div class="page-hero">
+      <div class="container">
+        <h1>Chef's Table Shop</h1>
+        <p>Seasonal meal kits, house-made specialties, and more — available for order online.</p>
+      </div>
+    </div>
+
+    <section class="shop-section" aria-labelledby="shop-heading">
+      <div class="container">
+        <h2 id="shop-heading">Available Now</h2>
+        <p class="shop-intro">Our shop features seasonal and limited offerings. All orders require <strong>48 hours notice</strong> and are available for <strong>weekday pickup only</strong> at 670 4th Ave N, Fargo, ND. Fargo sales tax (7.75%) is added at checkout.</p>
+
+        <!-- Shop Items -->
+        <div class="shop-grid" role="list" aria-label="Available items">
+
+          <article class="shop-item" role="listitem" id="item-easter" hidden aria-hidden="true" style="display:none;">
+            <div class="shop-item-img" aria-hidden="true">🐣</div>
+            <div class="shop-item-body">
+              <h3>Easter Brunch Meal Kit</h3>
+              <p>Everything you need for a spectacular Easter brunch at home. Feeds a family of 4–6. Includes entrée, sides, and brunch pastries. Available for pickup only.</p>
+              <span class="shop-item-price" id="easter-price">$85.00</span>
+              <button class="btn btn-primary" onclick="openOrderForm('easter')" aria-label="Order an Easter Brunch Meal Kit for $85.00">
+                Order Now
+              </button>
+            </div>
+          </article>
+
+          <article class="shop-item" role="listitem" id="item-pickles">
+            <div class="shop-item-img" aria-hidden="true">🥒</div>
+            <div class="shop-item-body">
+              <h3>House-Made Pickles — Quart Jar</h3>
+              <p>Chef's Table's signature house-made pickled vegetables. Great on their own or as part of our antipasto presentations. Available for pickup at our kitchen.</p>
+              <span class="shop-item-price" id="pickles-price">$12.00</span>
+              <button class="btn btn-primary" onclick="openOrderForm('pickles')" data-order-btn aria-label="Order a quart of house-made pickles for $12.00">
+                Order Now
+              </button>
+            </div>
+          </article>
+
+          <article class="shop-item" role="listitem" id="item-seasonal">
+            <div class="shop-item-img" aria-hidden="true">🍂</div>
+            <div class="shop-item-body">
+              <h3>Seasonal Items</h3>
+              <p>We regularly offer holiday meal kits, specialty items, and limited-run products. Follow us on Facebook and Instagram to stay up to date on what's available.</p>
+              <a href="http://www.facebook.com/chefstablefargo" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" aria-label="Follow Chef's Table on Facebook for seasonal item announcements (opens in new tab)">
+                Follow for Updates
+              </a>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Order Form Modal -->
+        <div id="order-form-section" class="shop-order-form" hidden aria-live="polite">
+          <h2 id="order-form-title">Place Your Order</h2>
+
+          <div id="order-status" role="alert" aria-live="assertive" class="form-status" style="display:none;margin-bottom:1rem;"></div>
+
+          <div class="form-group">
+            <label>Item</label>
+            <p id="order-item-display" style="font-weight:700;color:var(--blue);font-size:1.05rem;"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="order-qty">Quantity <span class="req" aria-label="required">*</span></label>
+            <input type="number" id="order-qty" min="1" max="20" value="1" style="max-width:120px;">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="order-name">Your Name <span class="req" aria-label="required">*</span></label>
+              <input type="text" id="order-name" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="order-email">Email <span class="req" aria-label="required">*</span></label>
+              <input type="email" id="order-email" autocomplete="email">
+              <span class="field-error" id="order-email-error" role="alert" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-phone">Phone <span class="req" aria-label="required">*</span></label>
+            <input type="tel" id="order-phone" autocomplete="tel">
+          </div>
+
+          <div class="form-group">
+            <label for="order-pickup-date">Preferred Pickup Date <span class="req" aria-label="required">*</span></label>
+              <span style="font-size:0.78rem;color:var(--gray);font-style:italic;display:block;margin-bottom:0.3rem;">Weekdays only · 48 hours minimum notice required</span>
+              <span style="font-size:0.78rem;color:var(--gray);font-style:italic;">Weekdays only · 48 hours minimum notice required</span>
+            <input type="date" id="order-pickup-date">
+          </div>
+
+          <div class="form-group">
+            <label for="order-notes">Special Instructions <span class="opt">(optional)</span></label>
+            <textarea id="order-notes" rows="3" placeholder="Any allergies, substitutions, or notes..."></textarea>
+          </div>
+
+          <!-- Pickles callout -->
+          <div id="pickles-callout" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;font-size:0.9rem;">
+            <strong>Need pickles sooner?</strong> Give us a call to check availability: <a href="tel:7015663473" style="font-weight:700;white-space:nowrap;">701-566-3473</a>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="gc-order-summary" aria-label="Order summary" aria-live="polite" style="margin-bottom:1.5rem;">
+            <div class="gc-summary-row">
+              <span id="summary-item-label">Item</span>
+              <span id="summary-item-price">—</span>
+            </div>
+            <div class="gc-summary-row">
+              <span>Quantity</span>
+              <span id="summary-qty">1</span>
+            </div>
+            <div class="gc-summary-row">
+              <span>Subtotal</span>
+              <span id="summary-subtotal">—</span>
+            </div>
+            <div class="gc-summary-row">
+              <span>Fargo Sales Tax (7.75%)</span>
+              <span id="summary-tax">—</span>
+            </div>
+            <div class="gc-summary-row gc-summary-total">
+              <span>Total</span>
+              <span id="summary-total">—</span>
+            </div>
+          </div>
+
+          <!-- Stripe Card -->
+          <div class="form-group">
+            <label id="card-label">Card Details <span class="req" aria-label="required">*</span></label>
+            <div id="card-element" style="padding:0.85rem 1rem;border:2px solid #dde2f0;border-radius:4px;background:#fafbff;" aria-labelledby="card-label"></div>
+            <div id="card-errors" role="alert" aria-live="assertive" class="field-error"></div>
+          </div>
+
+          <p class="secure-note">🔒 Payments processed securely via Stripe. We never store your card details. All orders are pickup only at 670 4th Ave N, Fargo, ND.</p>
+
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <button id="order-submit" class="btn btn-primary btn-large">
+              <span id="order-btn-label">Pay &amp; Place Order</span>
+            </button>
+            <button class="btn btn-secondary" onclick="closeOrderForm()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Success -->
+        <div id="order-success" hidden style="padding:3rem 0;text-align:center;" aria-live="polite">
+          <div style="max-width:480px;margin:0 auto;background:var(--white);border:2px solid var(--blue-pale);border-radius:4px;padding:3rem;box-shadow:var(--shadow);">
+            <div style="width:60px;height:60px;background:#2e7d32;color:white;font-size:1.8rem;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;" aria-hidden="true">✓</div>
+            <h2>Order Received!</h2>
+            <p id="order-success-msg" style="color:var(--gray);margin:1rem 0 2rem;"></p>
+            <a href="index.html" class="btn btn-secondary">Back to Homepage</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="logo.jpeg" alt="Chef's Table Catering" class="footer-logo-img" width="120" height="60">
+          <p>Full Service Catering<br>Fargo, ND</p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <h3>Pages</h3>
+          <ul role="list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Our Menu</a></li>
+            <li><a href="bar-catering.html">Bar Catering</a></li>
+            <li><a href="venue-partners.html">Venue Partners</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <!-- Gallery hidden until photos ready -->
+            <li><a href="testimonials.html">Testimonials</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="footer-contact">
+          <h3>Contact</h3>
+          <address>
+            <p>Kent Larsen — <a href="mailto:kent@chefstablefargo.com">kent@chefstablefargo.com</a></p>
+            <p>Cell: <a href="tel:7015663473">701-566-3473</a></p>
+            <p>Kelsy Ballinger — <a href="mailto:sales@chefstablefargo.com">sales@chefstablefargo.com</a></p>
+            <p>670 4th Ave N, Fargo, ND 58102</p>
+          </address>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Chef's Table Catering. All rights reserved. | <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer">A Great Plains Hospitality Company</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+  <script src="shop.js"></script>
+</body>
+</html>
