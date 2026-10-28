@@ -30,6 +30,7 @@ exports.handler = async (event) => {
       success_url: SUCCESS_URL,
       cancel_url:  CANCEL_URL,
       billing_address_collection: 'auto',
+      phone_number_collection: { enabled: true },
       // No tax — heat-and-serve prepared foods are exempt in ND
     });
 
