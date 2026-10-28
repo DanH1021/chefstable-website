@@ -1,212 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chef's Table Catering | Fargo, ND | Full Service Catering</title>
-  <meta name="description" content="Chef's Table is a full service catering company in Fargo, ND with a reputation for outstanding service and food. Weddings, corporate events, and special occasions.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Lato:wght@400;700&family=Oswald:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chef's Table Catering | Fargo, ND | Full Service Catering</title>
+<meta name="description" content="Chef's Table is a full service catering company in Fargo, ND with a reputation for outstanding service and food. Weddings, corporate events, and special occasions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Lato:wght@400;700&family=Oswald:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ââ Thanksgiving section ââ */
+.thanksgiving-section {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, #3d1600 0%, #7B2D00 40%, #A84000 100%);
+  position: relative;
+  overflow: hidden;
+}
+.thanksgiving-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.thanksgiving-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3rem;
+  align-items: center;
+}
+.thanksgiving-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #F0D070;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.thanksgiving-inner h2 {
+  color: #fff;
+  font-style: italic;
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  margin-bottom: 1rem;
+}
+.thanksgiving-desc {
+  color: rgba(255,255,255,0.88);
+  font-size: 1rem;
+  max-width: 520px;
+  margin-bottom: 1.25rem;
+}
+.thanksgiving-checklist {
+  list-style: none;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 1.5rem;
+}
+.thanksgiving-checklist li {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.thanksgiving-checklist li::before {
+  content: 'â';
+  color: #F0D070;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.thanksgiving-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.thanksgiving-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 50px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+.thanksgiving-cta-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex-shrink: 0;
+  min-width: 200px;
+}
+.thanksgiving-price {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 0.15rem;
+}
+.thanksgiving-price-note {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 1.25rem;
+}
+.btn-harvest {
+  background: #F0D070;
+  color: #3d1600;
+  border-color: #F0D070;
+  font-weight: 700;
+}
+.btn-harvest:hover {
+  background: #fff;
+  color: #7B2D00;
+  border-color: #fff;
+}
+.thanksgiving-sold-out {
+  display: none; /* shown by JS if needed */
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.25rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .thanksgiving-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .thanksgiving-cta-block { align-items: flex-start; text-align: left; }
+  .thanksgiving-checklist { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
 
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <header class="site-header" role="banner">
-    <div class="header-inner">
-      <div class="logo-wrap">
-        <a href="index.html" class="logo-link" aria-label="Chef's Table Catering - Return to homepage">
-          <img src="logo.jpeg" alt="Chef's Table Catering" class="site-logo" width="140" height="70">
-        </a>
-        <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer" class="gph-tagline">
-          A Great Plains Hospitality Company<span class="sr-only"> (opens in new tab)</span>
-        </a>
-      </div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">
-        <span class="hamburger" aria-hidden="true"></span>
-      </button>
-      <nav id="primary-nav" aria-label="Primary navigation">
-        <ul role="list">
-          <li><a href="index.html" aria-current="page">Home</a></li>
-          <li><a href="menu.html">Our Menu</a></li>
-          <li><a href="bar-catering.html">Bar Catering</a></li>
-          <li><a href="venue-partners.html">Venue Partners</a></li>
-          <!-- <li><a href="shop.html">Shop</a></li> Hidden until shop launches -->
-          <!-- Gallery hidden until photos ready -->
-          <li><a href="testimonials.html">Testimonials</a></li>
-          <li class="nav-cta"><a href="contact.html">Contact Us</a></li>
+<header class="site-header" role="banner">
+<div class="header-inner">
+<div class="logo-wrap">
+<a href="index.html" class="logo-link" aria-label="Chef's Table Catering - Return to homepage">
+<img src="logo.jpeg" alt="Chef's Table Catering" class="site-logo" width="140" height="70">
+</a>
+<a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer" class="gph-tagline">
+A Great Plains Hospitality Company<span class="sr-only"> (opens in new tab)</span>
+</a>
+</div>
+<button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">
+<span class="hamburger" aria-hidden="true"></span>
+</button>
+<nav id="primary-nav" aria-label="Primary navigation">
+<ul role="list">
+<li><a href="index.html" aria-current="page">Home</a></li>
+<li><a href="menu.html">Our Menu</a></li>
+<li><a href="bar-catering.html">Bar Catering</a></li>
+<li><a href="venue-partners.html">Venue Partners</a></li>
+<li><a href="shop.html">Shop</a></li>
+<!-- Gallery hidden until photos ready -->
+<li><a href="testimonials.html">Testimonials</a></li>
+<li class="nav-cta"><a href="contact.html">Contact Us</a></li>
+</ul>
+</nav>
+</div>
+</header>
+
+<main id="main-content">
+
+<section class="hero" aria-labelledby="hero-heading">
+<div class="container">
+<div class="hero-inner">
+<div class="hero-content">
+<p class="hero-eyebrow">Fargo's Premier Catering Company</p>
+<h1 id="hero-heading">From Elegant Dinners to<br>Themed Buffets</h1>
+<p class="hero-tagline">Chef's Table Catering is the top choice for your next special event. We will work with you to create a menu that fits your taste, budget, and style.</p>
+<div class="hero-actions">
+<a href="contact.html" class="btn btn-gold btn-large">Request a Quote</a>
+<a href="menu.html" class="btn btn-secondary btn-large" style="color:white;border-color:white;">View Our Menu</a>
+</div>
+</div>
+<div class="hero-photo" aria-hidden="true">
+<img src="hero-photo.jpg" alt="Chef's Table Catering event spread featuring elegant food presentation" class="hero-img" onerror="this.parentElement.style.display='none'">
+</div>
+</div>
+</div>
+</section>
+
+<!-- ââ Thanksgiving Meal Kit ââ -->
+<section class="thanksgiving-section" aria-labelledby="tk-home-heading">
+  <div class="container">
+    <div class="thanksgiving-inner">
+      <div class="thanksgiving-content">
+        <span class="thanksgiving-eyebrow">ð¦ Now Available â Limited Quantity</span>
+        <h2 id="tk-home-heading">Thanksgiving Meal Kit</h2>
+        <p class="thanksgiving-desc">
+          Skip the stress this Thanksgiving. Our fully cooked, heat-and-serve meal kit feeds <strong style="color:#fff;">4â6 adults</strong> and has everything you need for the table.
+        </p>
+        <ul class="thanksgiving-checklist" aria-label="Kit includes">
+          <li>Turkey breast &amp; thigh meat</li>
+          <li>Garlic whipped potatoes</li>
+          <li>Turkey gravy</li>
+          <li>Stuffing</li>
+          <li>Green bean casserole</li>
+          <li>King's Hawaiian rolls</li>
         </ul>
-      </nav>
-    </div>
-  </header>
-
-  <main id="main-content">
-
-    <section class="hero" aria-labelledby="hero-heading">
-      <div class="container">
-        <div class="hero-inner">
-          <div class="hero-content">
-            <p class="hero-eyebrow">Fargo's Premier Catering Company</p>
-            <h1 id="hero-heading">From Elegant Dinners to<br>Themed Buffets</h1>
-            <p class="hero-tagline">Chef's Table Catering is the top choice for your next special event. We will work with you to create a menu that fits your taste, budget, and style.</p>
-            <div class="hero-actions">
-              <a href="contact.html" class="btn btn-gold btn-large">Request a Quote</a>
-              <a href="menu.html" class="btn btn-secondary btn-large" style="color:white;border-color:white;">View Our Menu</a>
-            </div>
-          </div>
-          <div class="hero-photo" aria-hidden="true">
-            <!-- Replace src with your actual photo file name once uploaded -->
-            <img src="hero-photo.jpg" alt="Chef's Table Catering event spread featuring elegant food presentation" class="hero-img" onerror="this.parentElement.style.display='none'">
-          </div>
+        <div class="thanksgiving-meta">
+          <span class="thanksgiving-badge">ð Pickup Nov 25th</span>
+          <span class="thanksgiving-badge">â° 4â6 PM</span>
+          <span class="thanksgiving-badge">ð Drekker Brewhalla, Fargo</span>
+          <span class="thanksgiving-badge">ð 120 kits available</span>
         </div>
       </div>
-    </section>
-
-    <section class="pillars" aria-labelledby="pillars-heading">
-      <div class="container">
-        <h2 id="pillars-heading" style="text-align:center;">Why Choose Chef's Table?</h2>
-        <div class="pillars-grid">
-          <div class="pillar">
-            <h3>Personal Service</h3>
-            <p>We will work with you one-on-one to create a menu that fits your taste, budget, and style — from first call to last course.</p>
-          </div>
-          <div class="pillar">
-            <h3>Signature Style</h3>
-            <p>Exquisite food, expert coordination, and gracious service. Every event gets the same white-glove attention to detail.</p>
-          </div>
-          <div class="pillar">
-            <h3>Commitment to Excellence</h3>
-            <p>We pledge to deliver an amazing, one-of-a-kind dining experience that your guests will remember for years to come.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="about-strip" aria-labelledby="about-heading">
-      <div class="container">
-        <div class="about-grid">
-          <div class="about-text">
-            <h2 id="about-heading">About Chef's Table</h2>
-            <p>Chef's Table is a full service catering company with a reputation for outstanding service and food. Our experienced team will make sure that your event is one that your guests will remember for years to come.</p>
-            <p>From intimate plated dinners to large-scale signature buffets, we bring the same passion and precision to every event. We are proud to be the preferred catering partner at some of the Fargo-Moorhead area's most sought-after venues.</p>
-            <div class="about-ctas">
-              <a href="menu.html" class="btn btn-primary">View 2026 Menu</a>
-              <a href="venue-partners.html" class="btn btn-secondary">Our Venue Partners</a>
-            </div>
-          </div>
-          <div class="about-stats" aria-label="Chef's Table by the numbers">
-            <div class="stat-card">
-              <span class="stat-num" aria-label="Over 20 years">20+</span>
-              <span class="stat-label">Years of Experience</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-num" aria-label="Over 6 venue partners">6+</span>
-              <span class="stat-label">Venue Partners</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-num" aria-label="Hundreds of events">100s</span>
-              <span class="stat-label">Events Per Year</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-num" aria-label="Full service">Full</span>
-              <span class="stat-label">Service Catering</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="venues-strip" aria-labelledby="venues-heading">
-      <div class="container">
-        <h2 id="venues-heading">Proud Venue Partners</h2>
-        <p class="venues-intro">Chef's Table is the exclusive or preferred catering partner at these outstanding Fargo-Moorhead venues.</p>
-        <div class="venues-grid">
-          <div class="venue-card">
-            <h3>The Pines Venue</h3>
-            <p>Exclusive catering partner for The Pines White and The Pines Black — featuring our signature antipasto presentations.</p>
-            <a href="https://thepinesvenue.com/" target="_blank" rel="noopener noreferrer">Visit The Pines <span class="sr-only">(opens in new tab)</span></a>
-          </div>
-          <div class="venue-card">
-            <h3>Drekker Brewhalla</h3>
-            <p>Exclusive catering partner at Fargo's premier craft brewery and event space.</p>
-            <a href="https://brewhalla.co/" target="_blank" rel="noopener noreferrer">Visit Brewhalla <span class="sr-only">(opens in new tab)</span></a>
-          </div>
-          <div class="venue-card">
-            <h3>Riverhaven Events Center</h3>
-            <p>Exclusive catering partner at this beautiful Fargo-area event center.</p>
-            <a href="https://riverhavenevents.com/" target="_blank" rel="noopener noreferrer">Visit Riverhaven <span class="sr-only">(opens in new tab)</span></a>
-          </div>
-          <div class="venue-card">
-            <h3>Sanctuary Events Center</h3>
-            <p>Exclusive catering partner at downtown Fargo's unique Sanctuary space.</p>
-            <a href="http://www.sanctuaryevents.com" target="_blank" rel="noopener noreferrer">Visit Sanctuary <span class="sr-only">(opens in new tab)</span></a>
-          </div>
-          <div class="venue-card">
-            <h3>Rustic Oaks &amp; Bluestem</h3>
-            <p>Proud to be the preferred catering partner at these acclaimed event venues.</p>
-            <a href="venue-partners.html">Learn More</a>
-          </div>
-          <div class="venue-card">
-            <h3>Plains Art Museum</h3>
-            <p>Preferred catering partner for events at Fargo's renowned Plains Art Museum.</p>
-            <a href="venue-partners.html">Learn More</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="cta-banner" aria-labelledby="cta-heading">
-      <div class="container">
-        <h2 id="cta-heading">Ready to Start Planning?</h2>
-        <p>Tell us about your event and we'll put together a custom menu proposal just for you.</p>
-        <a href="contact.html" class="btn btn-gold btn-large">Get in Touch</a>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="site-footer" role="contentinfo">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <img src="logo.jpeg" alt="Chef's Table Catering" class="footer-logo-img" width="120" height="60">
-          <p>Full Service Catering<br>Fargo, ND</p>
-        </div>
-        <nav aria-label="Footer navigation">
-          <h3>Pages</h3>
-          <ul role="list">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Our Menu</a></li>
-            <li><a href="bar-catering.html">Bar Catering</a></li>
-            <li><a href="venue-partners.html">Venue Partners</a></li>
-            <!-- <li><a href="shop.html">Shop</a></li> Hidden until shop launches -->
-            <!-- Gallery hidden until photos ready -->
-            <li><a href="testimonials.html">Testimonials</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </nav>
-        <div class="footer-contact">
-          <h3>Contact</h3>
-          <address>
-            <p>Kent Larsen — <a href="mailto:kent@chefstablefargo.com">kent@chefstablefargo.com</a></p>
-            <p>Cell: <a href="tel:7015663473">701-566-3473</a></p>
-            <p>Kelsy Ballinger — <a href="mailto:sales@chefstablefargo.com">sales@chefstablefargo.com</a></p>
-            <p>670 4th Ave N, Fargo, ND 58102</p>
-          </address>
-          <div class="social-links" aria-label="Social media links" style="margin-top:1rem;">
-            <a href="http://www.facebook.com/chefstablefargo" target="_blank" rel="noopener noreferrer" aria-label="Follow Chef's Table on Facebook (opens in new tab)">Facebook</a>
-            <a href="https://www.instagram.com/ctcfargo/" target="_blank" rel="noopener noreferrer" aria-label="Follow Chef's Table on Instagram (opens in new tab)">Instagram</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 Chef's Table Catering. All rights reserved. | <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer">A Great Plains Hospitality Company</a></p>
+      <div class="thanksgiving-cta-block">
+        <div class="thanksgiving-price" aria-label="Price: $90 per kit">$90</div>
+        <p class="thanksgiving-price-note">per kit â¢ no tax<br>Order by Nov 24</p>
+        <a href="thanksgiving-kit.html" class="btn btn-harvest btn-large">Order Now</a>
+        <div class="thanksgiving-sold-out" id="tk-home-soldout" role="alert">Orders are now closed</div>
       </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <script src="main.js"></script>
+<section class="pillars" aria-labelledby="pillars-heading">
+<div class="container">
+<h2 id="pillars-heading" style="text-align:center;">Why Choose Chef's Table?</h2>
+<div class="pillars-grid">
+<div class="pillar">
+<h3>Personal Service</h3>
+<p>We will work with you one-on-one to create a menu that fits your taste, budget, and style â from first call to last course.</p>
+</div>
+<div class="pillar">
+<h3>Signature Style</h3>
+<p>Exquisite food, expert coordination, and gracious service. Every event gets the same white-glove attention to detail.</p>
+</div>
+<div class="pillar">
+<h3>Commitment to Excellence</h3>
+<p>We pledge to deliver an amazing, one-of-a-kind dining experience that your guests will remember for years to come.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="about-strip" aria-labelledby="about-heading">
+<div class="container">
+<div class="about-grid">
+<div class="about-text">
+<h2 id="about-heading">About Chef's Table</h2>
+<p>Chef's Table is a full service catering company with a reputation for outstanding service and food. Our experienced team will make sure that your event is one that your guests will remember for years to come.</p>
+<p>From intimate plated dinners to large-scale signature buffets, we bring the same passion and precision to every event. We are proud to be the preferred catering partner at some of the Fargo-Moorhead area's most sought-after venues.</p>
+<div class="about-ctas">
+<a href="menu.html" class="btn btn-primary">View 2027 Menu</a>
+<a href="venue-partners.html" class="btn btn-secondary">Our Venue Partners</a>
+</div>
+</div>
+<div class="about-stats" aria-label="Chef's Table by the numbers">
+<div class="stat-card">
+<span class="stat-num" aria-label="Over 20 years">20+</span>
+<span class="stat-label">Years of Experience</span>
+</div>
+<div class="stat-card">
+<span class="stat-num" aria-label="Over 6 venue partners">6+</span>
+<span class="stat-label">Venue Partners</span>
+</div>
+<div class="stat-card">
+<span class="stat-num" aria-label="Hundreds of events">100s</span>
+<span class="stat-label">Events Per Year</span>
+</div>
+<div class="stat-card">
+<span class="stat-num" aria-label="Full service">Full</span>
+<span class="stat-label">Service Catering</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="venues-strip" aria-labelledby="venues-heading">
+<div class="container">
+<h2 id="venues-heading">Proud Venue Partners</h2>
+<p class="venues-intro">Chef's Table is the exclusive or preferred catering partner at these outstanding Fargo-Moorhead venues.</p>
+<div class="venues-grid">
+<div class="venue-card">
+<h3>The Pines Venue</h3>
+<p>Exclusive catering partner for The Pines White and The Pines Black â featuring our signature antipasto presentations.</p>
+<a href="https://thepinesvenue.com/" target="_blank" rel="noopener noreferrer">Visit The Pines <span class="sr-only">(opens in new tab)</span></a>
+</div>
+<div class="venue-card">
+<h3>Drekker Brewhalla</h3>
+<p>Exclusive catering partner at Fargo's premier craft brewery and event space.</p>
+<a href="https://brewhalla.co/" target="_blank" rel="noopener noreferrer">Visit Brewhalla <span class="sr-only">(opens in new tab)</span></a>
+</div>
+<div class="venue-card">
+<h3>Riverhaven Events Center</h3>
+<p>Exclusive catering partner at this beautiful Fargo-area event center.</p>
+<a href="https://riverhavenevents.com/" target="_blank" rel="noopener noreferrer">Visit Riverhaven <span class="sr-only">(opens in new tab)</span></a>
+</div>
+<div class="venue-card">
+<h3>Sanctuary Events Center</h3>
+<p>Exclusive catering partner at downtown Fargo's unique Sanctuary space.</p>
+<a href="http://www.sanctuaryevents.com" target="_blank" rel="noopener noreferrer">Visit Sanctuary <span class="sr-only">(opens in new tab)</span></a>
+</div>
+<div class="venue-card">
+<h3>Rustic Oaks &amp; Bluestem</h3>
+<p>Proud to be the preferred catering partner at these acclaimed event venues.</p>
+<a href="venue-partners.html">Learn More</a>
+</div>
+<div class="venue-card">
+<h3>Plains Art Museum</h3>
+<p>Preferred catering partner for events at Fargo's renowned Plains Art Museum.</p>
+<a href="venue-partners.html">Learn More</a>
+</div>
+</div>
+</div>
+</section>
+
+<section class="cta-banner" aria-labelledby="cta-heading">
+<div class="container">
+<h2 id="cta-heading">Ready to Start Planning?</h2>
+<p>Tell us about your event and we'll put together a custom menu proposal just for you.</p>
+<a href="contact.html" class="btn btn-gold btn-large">Get in Touch</a>
+</div>
+</section>
+
+</main>
+
+<footer class="site-footer" role="contentinfo">
+<div class="container">
+<div class="footer-grid">
+<div class="footer-brand">
+<img src="logo.jpeg" alt="Chef's Table Catering" class="footer-logo-img" width="120" height="60">
+<p>Full Service Catering<br>Fargo, ND</p>
+</div>
+<nav aria-label="Footer navigation">
+<h3>Pages</h3>
+<ul role="list">
+<li><a href="index.html">Home</a></li>
+<li><a href="menu.html">Our Menu</a></li>
+<li><a href="bar-catering.html">Bar Catering</a></li>
+<li><a href="venue-partners.html">Venue Partners</a></li>
+<li><a href="shop.html">Shop</a></li>
+<!-- Gallery hidden until photos ready -->
+<li><a href="testimonials.html">Testimonials</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+</nav>
+<div class="footer-contact">
+<h3>Contact</h3>
+<address>
+<p>Kent Larsen â <a href="mailto:kent@chefstablefargo.com">kent@chefstablefargo.com</a></p>
+<p>Cell: <a href="tel:7015663473">701-566-3473</a></p>
+<p>Kelsy Ballinger â <a href="mailto:sales@chefstablefargo.com">sales@chefstablefargo.com</a></p>
+<p>670 4th Ave N, Fargo, ND 58102</p>
+</address>
+<div class="social-links" aria-label="Social media links" style="margin-top:1rem;">
+<a href="http://www.facebook.com/chefstablefargo" target="_blank" rel="noopener noreferrer" aria-label="Follow Chef's Table on Facebook (opens in new tab)">Facebook</a>
+<a href="https://www.instagram.com/ctcfargo/" target="_blank" rel="noopener noreferrer" aria-label="Follow Chef's Table on Instagram (opens in new tab)">Instagram</a>
+</div>
+</div>
+</div>
+<div class="footer-bottom">
+<p>&copy; 2027 Chef's Table Catering. All rights reserved. | <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer">A Great Plains Hospitality Company</a></p>
+</div>
+</div>
+</footer>
+
+<script src="main.js"></script>
+<script>
+// Auto-hide the homepage Thanksgiving section after order deadline
+(function() {
+  var deadline = new Date('2026-11-24T23:59:59');
+  if (new Date() > deadline) {
+    var soldOut = document.getElementById('tk-home-soldout');
+    if (soldOut) soldOut.style.display = 'block';
+    var orderBtn = document.querySelector('.btn-harvest');
+    if (orderBtn) { orderBtn.style.pointerEvents = 'none'; orderBtn.style.opacity = '0.5'; orderBtn.textContent = 'Orders Closed'; }
+  }
+})();
+</script>
 </body>
 </html>
