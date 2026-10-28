@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed | Chef's Table Catering</title>
+  <meta name="description" content="Your Thanksgiving Meal Kit order is confirmed! Pickup November 25th at Drekker Brewhalla.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Lato:wght@400;700&family=Oswald:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .success-hero {
+      background: linear-gradient(135deg, #1a5c2a 0%, #2d7a3a 100%);
+      padding: 5rem 0 4rem;
+      text-align: center;
+    }
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .success-hero h1 {
+      color: #fff;
+      font-style: italic;
+      margin-bottom: 0.75rem;
+    }
+    .success-hero p {
+      color: rgba(255,255,255,0.88);
+      font-size: 1.1rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .success-body {
+      padding: 4rem 0;
+      background: var(--white);
+    }
+    .success-card {
+      max-width: 640px;
+      margin: 0 auto;
+      background: var(--white);
+      border: 2px solid var(--blue-pale);
+      border-top: 5px solid #2d7a3a;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-heavy);
+      padding: 2.5rem;
+    }
+    .success-card h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+    }
+    .success-detail-list {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+    .success-detail-list li {
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--blue-pale);
+      display: flex;
+      gap: 1rem;
+      font-size: 0.97rem;
+    }
+    .success-detail-list li:last-child { border-bottom: none; }
+    .success-detail-label {
+      font-weight: 700;
+      color: var(--gray-dark);
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+    .success-detail-val { color: var(--gray); }
+
+    .success-pickup-box {
+      background: #f0faf2;
+      border: 2px solid #a8d5b0;
+      border-left: 5px solid #2d7a3a;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .success-pickup-box h3 {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #1a5c2a;
+      margin-bottom: 0.75rem;
+    }
+    .success-pickup-box p {
+      font-size: 0.95rem;
+      color: var(--gray-dark);
+      margin-bottom: 0.3rem;
+    }
+    .success-pickup-box a { color: #1a5c2a; }
+
+    .success-receipt-note {
+      font-size: 0.88rem;
+      color: var(--gray);
+      background: var(--blue-pale);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .success-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-green {
+      background: #2d7a3a;
+      color: #fff;
+      border-color: #1a5c2a;
+    }
+    .btn-green:hover { background: #1a5c2a; color: #fff; }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <a href="index.html" class="logo-link" aria-label="Chef's Table Catering - Return to homepage">
+        <img src="logo.jpeg" alt="Chef's Table Catering" class="site-logo" width="140" height="70">
+      </a>
+      <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer" class="gph-tagline">
+        A Great Plains Hospitality Company<span class="sr-only"> (opens in new tab)</span>
+      </a>
+    </div>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation menu">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+    <nav id="primary-nav" aria-label="Primary navigation">
+      <ul role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="menu.html">Our Menu</a></li>
+        <li><a href="bar-catering.html">Bar Catering</a></li>
+        <li><a href="venue-partners.html">Venue Partners</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="testimonials.html">Testimonials</a></li>
+        <li class="nav-cta"><a href="contact.html">Contact Us</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content">
+
+  <section class="success-hero" aria-labelledby="success-heading">
+    <div class="container">
+      <span class="success-icon" aria-hidden="true">ð</span>
+      <h1 id="success-heading">Order Confirmed!</h1>
+      <p>Your Thanksgiving Meal Kit is reserved. We can't wait to feed your family!</p>
+    </div>
+  </section>
+
+  <section class="success-body">
+    <div class="container">
+      <div class="success-card">
+        <h2>Order Details</h2>
+
+        <ul class="success-detail-list">
+          <li>
+            <span class="success-detail-label">Item</span>
+            <span class="success-detail-val">Thanksgiving Meal Kit â Feeds 4â6</span>
+          </li>
+          <li>
+            <span class="success-detail-label">Price</span>
+            <span class="success-detail-val">$90.00 per kit â no sales tax</span>
+          </li>
+          <li>
+            <span class="success-detail-label">Contents</span>
+            <span class="success-detail-val">
+              Turkey (breast &amp; thigh), garlic whipped potatoes, turkey gravy, stuffing, green bean casserole, King's Hawaiian rolls
+            </span>
+          </li>
+        </ul>
+
+        <div class="success-pickup-box" role="note" aria-label="Pickup reminder">
+          <h3>ð Pickup Reminder</h3>
+          <p><strong>Date:</strong> Wednesday, November 25th</p>
+          <p><strong>Time:</strong> 4:00 PM â 6:00 PM</p>
+          <p>
+            <strong>Location:</strong>
+            <a href="https://maps.google.com/?q=1702+1st+Ave+N,+Fargo,+ND" target="_blank" rel="noopener noreferrer">
+              Drekker Brewhalla â 1702 1st Ave N, Fargo, ND<span class="sr-only"> (opens in new tab)</span>
+            </a>
+          </p>
+          <p style="font-size:0.88rem;color:var(--gray);margin-top:0.4rem;">In the marketplace near the main entrance.</p>
+        </div>
+
+        <p class="success-receipt-note">
+          ð§ A payment receipt has been sent to your email from Stripe. If you have questions about your order, contact Kent at <a href="mailto:kent@chefstablefargo.com">kent@chefstablefargo.com</a> or <a href="tel:7015663473">701-566-3473</a>.
+        </p>
+
+        <div class="success-actions">
+          <a href="index.html" class="btn btn-primary">Back to Home</a>
+          <a href="menu.html" class="btn btn-secondary">View Our Full Menu</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="logo.jpeg" alt="Chef's Table Catering" class="footer-logo-img" width="120" height="60">
+        <p>Full Service Catering<br>Fargo, ND</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <h3>Pages</h3>
+        <ul role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Our Menu</a></li>
+          <li><a href="shop.html">Shop</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="footer-contact">
+        <h3>Contact</h3>
+        <address>
+          <p>Kent Larsen â <a href="mailto:kent@chefstablefargo.com">kent@chefstablefargo.com</a></p>
+          <p>Cell: <a href="tel:7015663473">701-566-3473</a></p>
+        </address>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2027 Chef's Table Catering. All rights reserved. | <a href="https://www.greatplainshospitality.com" target="_blank" rel="noopener noreferrer">A Great Plains Hospitality Company</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
