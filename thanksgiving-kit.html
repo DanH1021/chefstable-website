@@ -86,7 +86,7 @@
       color: var(--gray-dark);
     }
     .tk-items-list li::before {
-      content: '&#10003;';
+      content: '\2713';
       color: #A84000;
       font-weight: 700;
       font-size: 1rem;
@@ -583,7 +583,7 @@
     }
 
     const qty = parseInt(qtyInput.value, 10);
-    checkoutBtn.textContent = 'Redirecting to checkout&hellip;';
+    checkoutBtn.textContent = 'Redirecting to checkout...';
     checkoutBtn.disabled = true;
 
     try {
