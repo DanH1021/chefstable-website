@@ -213,6 +213,7 @@
             <button class="btn btn-gray btn-sm" onclick="printPickupList()">Print pickup list</button>
             <button class="btn btn-gray btn-sm" onclick="exportOrders()">Download spreadsheet (CSV)</button>
             <button class="btn btn-outline btn-sm" onclick="importStripe()" title="Pulls in any paid Stripe checkouts that are missing from this list">Sync from Stripe</button>
+            <button class="btn btn-outline btn-sm" onclick="testAlert()" title="Sends a sample new-order email to check the email setup">Send test order email</button>
           </div>
         </div>
         <div class="filter-bar">
@@ -560,6 +561,14 @@ function printPickupList() {
   area.hidden = false;
   window.print();
   area.hidden = true;
+}
+
+async function testAlert() {
+  showMsg('global-msg', 'Sending a test order email...', 'info');
+  try {
+    var r = await api({ action: 'test_alert' });
+    showMsg('global-msg', 'Test email sent to ' + (r.to || []).join(', ') + '. Check the inbox (and spam folder).', 'success');
+  } catch (e) { showMsg('global-msg', e.message, 'error'); }
 }
 
 async function importStripe() {

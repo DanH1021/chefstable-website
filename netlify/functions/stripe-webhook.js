@@ -32,7 +32,17 @@ exports.handler = async (event) => {
       // whatever API version the webhook destination is set to.
       const session = await stripe.checkout.sessions.retrieve(evt.data.object.id);
       const result = await core.recordCheckoutSession(stripe, session);
-      console.log('Recorded', session.id, JSON.stringify(result));
+      console.log('Recorded', session.id, result.recorded);
+      // Email the alert only the first time an order is saved (Stripe retries and
+      // "Sync from Stripe" never re-send it). An email problem never blocks the order.
+      if (result.recorded) {
+        try {
+          const mail = await core.sendOrderAlert(result.rows);
+          console.log('Order alert', JSON.stringify(mail));
+        } catch (mailErr) {
+          console.error('Order alert email failed:', mailErr.message);
+        }
+      }
     }
     return { statusCode: 200, body: JSON.stringify({ received: true }) };
   } catch (err) {

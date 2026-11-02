@@ -184,7 +184,79 @@ async function recordCheckoutSession(stripe, session) {
   if (!rows.length) return { recorded: 0, skipped: 'no shop items' };
   const inserted = await sb('shop_orders?on_conflict=order_ref,item_id', 'POST', rows,
     'resolution=ignore-duplicates,return=representation');
-  return { recorded: Array.isArray(inserted) ? inserted.length : 0 };
+  const saved = Array.isArray(inserted) ? inserted : [];
+  return { recorded: saved.length, rows: saved };
+}
+
+// ---------------------------------------------------------------- Order alert email
+// Sends through a Google Workspace / Gmail account with an app password.
+//   SMTP_USER        the Google account that sends (e.g. dan.hurder@greatplainshospitality.com)
+//   SMTP_PASS        that account's 16-character app password
+//   ORDER_ALERT_FROM optional; defaults to noreply@chefstablefargo.com. Google only
+//                    keeps this From address if it is a "Send mail as" address on
+//                    SMTP_USER; otherwise the email still arrives, from SMTP_USER.
+//   ORDER_ALERT_TO   optional; comma-separated recipients (default Kent)
+const DEFAULT_ALERT_TO   = 'kent@chefstablefargo.com';
+const DEFAULT_ALERT_FROM = 'noreply@chefstablefargo.com';
+
+function alertConfigured() {
+  return !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function money(cents) { return '$' + ((cents || 0) / 100).toFixed(2); }
+
+function buildOrderEmail(rows, { test = false } = {}) {
+  const o = rows[0];
+  const total = rows.reduce((s, r) => s + (r.total_cents || 0), 0);
+  const items = rows.map(r => r.quantity + ' \u00d7 ' + r.item_name).join(', ');
+  const subject = (test ? '[TEST] ' : '') + 'New order: ' + items + ' (' + (o.buyer_name || o.buyer_email) + ')';
+  const line = (label, value) =>
+    '<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top;white-space:nowrap;">' + label +
+    '</td><td style="padding:6px 0;vertical-align:top;">' + value + '</td></tr>';
+  const html =
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#111;max-width:560px;">' +
+    (test ? '<p style="background:#fff3cd;padding:8px 12px;border-radius:4px;"><strong>Test email</strong> from the shop admin page. Not a real order.</p>' : '') +
+    '<h2 style="margin:0 0 12px;color:#0128A0;">New Chef\u2019s Table shop order</h2>' +
+    '<table style="border-collapse:collapse;">' +
+    line('Customer', '<strong>' + escHtml(o.buyer_name || '(no name)') + '</strong>') +
+    line('Phone', o.buyer_phone ? '<a href="tel:' + escHtml(o.buyer_phone) + '">' + escHtml(o.buyer_phone) + '</a>' : '(none)') +
+    line('Email', '<a href="mailto:' + escHtml(o.buyer_email) + '">' + escHtml(o.buyer_email) + '</a>') +
+    line('Ordered', rows.map(r => '<strong>' + r.quantity + ' &times; ' + escHtml(r.item_name) + '</strong>').join('<br>')) +
+    line('Special requests', o.notes ? '<span style="background:#fff3cd;padding:2px 6px;">' + escHtml(o.notes) + '</span>' : 'None') +
+    line('Pickup', escHtml(o.pickup_details || o.pickup_date || '')) +
+    line('Total paid', money(total)) +
+    '</table>' +
+    '<p style="margin-top:18px;"><a href="' + SITE_URL + '/shop-admin.html" style="background:#0133C8;color:#fff;padding:10px 16px;border-radius:4px;text-decoration:none;font-weight:bold;">Open the shop admin</a></p>' +
+    '</div>';
+  const text = 'New Chef\u2019s Table shop order\n\n' +
+    'Customer: ' + (o.buyer_name || '') + '\nPhone: ' + (o.buyer_phone || '') + '\nEmail: ' + o.buyer_email +
+    '\nOrdered: ' + items + '\nSpecial requests: ' + (o.notes || 'None') +
+    '\nPickup: ' + (o.pickup_details || o.pickup_date || '') + '\nTotal paid: ' + money(total) +
+    '\n\nShop admin: ' + SITE_URL + '/shop-admin.html\n';
+  return { subject, html, text };
+}
+
+async function sendOrderAlert(rows, opts = {}) {
+  if (!rows || !rows.length) return { sent: false, reason: 'no rows' };
+  if (!alertConfigured()) return { sent: false, reason: 'SMTP_USER / SMTP_PASS not set' };
+  const nodemailer = require('nodemailer');
+  const transport = nodemailer.createTransport({
+    host: 'smtp.gmail.com', port: 465, secure: true,
+    auth: { user: process.env.SMTP_USER, pass: String(process.env.SMTP_PASS).replace(/\s+/g, '') },
+  });
+  const to = (process.env.ORDER_ALERT_TO || DEFAULT_ALERT_TO).split(',').map(s => s.trim()).filter(Boolean);
+  const from = process.env.ORDER_ALERT_FROM || DEFAULT_ALERT_FROM;
+  const msg = buildOrderEmail(rows, opts);
+  const info = await transport.sendMail({
+    from: '"Chef\u2019s Table Shop" <' + from + '>',
+    to, replyTo: rows[0].buyer_email || undefined,
+    subject: msg.subject, html: msg.html, text: msg.text,
+  });
+  return { sent: true, to, messageId: info.messageId };
 }
 
 function json(statusCode, obj) {
@@ -195,4 +267,5 @@ module.exports = {
   sb, json, SITE_URL, TAX_PERCENT, KITCHEN_PICKUP, LEGACY_PRICES,
   loadItemsWithAvailability, publicItem, eventPickupText, formatDate,
   minFlexiblePickupDate, getTaxRateId, recordCheckoutSession,
+  sendOrderAlert, buildOrderEmail, alertConfigured,
 };

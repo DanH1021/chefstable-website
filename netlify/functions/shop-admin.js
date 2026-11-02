@@ -170,6 +170,25 @@ exports.handler = async (event) => {
       return core.json(200, { success: true });
     }
 
+    if (action === 'test_alert') {
+      // Sends a sample order alert so the email setup can be checked.
+      if (!core.alertConfigured()) {
+        return core.json(400, { error: 'Email is not set up yet: add SMTP_USER and SMTP_PASS in Netlify, then redeploy.' });
+      }
+      const sample = [{
+        buyer_name: 'Test Customer', buyer_email: 'test@example.com', buyer_phone: '+1 701-555-0100',
+        item_name: 'Thanksgiving Meal Kit', quantity: 2, total_cents: 18000,
+        notes: 'This is a test. One kit without stuffing, please.',
+        pickup_details: 'Wednesday, November 25, 4:00 PM to 6:00 PM, Drekker Brewhalla',
+      }];
+      try {
+        const r = await core.sendOrderAlert(sample, { test: true });
+        return core.json(200, { success: true, to: r.to });
+      } catch (e) {
+        return core.json(400, { error: 'Email failed: ' + e.message });
+      }
+    }
+
     if (action === 'import_stripe') {
       // Pulls paid Stripe checkouts from the last N days into the order list.
       // Already-saved orders are skipped, so this is safe to run any time.
