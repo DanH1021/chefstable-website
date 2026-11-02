@@ -10,136 +10,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Lato:wght@400;700&family=Oswald:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <style>
-/* &#9472;&#9472; Thanksgiving section &#9472;&#9472; */
-.thanksgiving-section {
-  padding: 5rem 0;
-  background: linear-gradient(135deg, #3d1600 0%, #7B2D00 40%, #A84000 100%);
-  position: relative;
-  overflow: hidden;
-}
-.thanksgiving-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-.thanksgiving-inner {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 3rem;
-  align-items: center;
-}
-.thanksgiving-eyebrow {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #F0D070;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-.thanksgiving-inner h2 {
-  color: #fff;
-  font-style: italic;
-  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
-  margin-bottom: 1rem;
-}
-.thanksgiving-desc {
-  color: rgba(255,255,255,0.88);
-  font-size: 1rem;
-  max-width: 520px;
-  margin-bottom: 1.25rem;
-}
-.thanksgiving-checklist {
-  list-style: none;
-  margin-bottom: 1.5rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem 1.5rem;
-}
-.thanksgiving-checklist li {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.85);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.thanksgiving-checklist li::before {
-  content: '\2713';
-  color: #F0D070;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.thanksgiving-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-.thanksgiving-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 50px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.04em;
-}
-.thanksgiving-cta-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  flex-shrink: 0;
-  min-width: 200px;
-}
-.thanksgiving-price {
-  font-family: var(--font-display);
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1;
-  margin-bottom: 0.15rem;
-}
-.thanksgiving-price-note {
-  font-size: 0.82rem;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 1.25rem;
-}
-.btn-harvest {
-  background: #F0D070;
-  color: #3d1600;
-  border-color: #F0D070;
-  font-weight: 700;
-}
-.btn-harvest:hover {
-  background: #fff;
-  color: #7B2D00;
-  border-color: #fff;
-}
-.thanksgiving-sold-out {
-  display: none; /* shown by JS if needed */
-  background: rgba(255,255,255,0.15);
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: var(--radius);
-  padding: 0.75rem 1.25rem;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.95rem;
-  text-align: center;
-  margin-top: 0.75rem;
-}
-
+/* Thanksgiving banner (links to the shop). To use a photo instead of the
+   illustration, replace the <svg> inside .tk-banner-art with
+   <img src="your-photo.jpg" alt=""> */
+.tk-promo { padding: 4rem 0; background: var(--gray-light); }
+.tk-banner { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: stretch; border-radius: 10px; overflow: hidden; text-decoration: none; color: #fff; background: linear-gradient(135deg, #3d1600 0%, #7B2D00 45%, #A84000 100%); box-shadow: 0 10px 34px rgba(61, 22, 0, .28); transition: transform .2s, box-shadow .2s; }
+.tk-banner:hover, .tk-banner:focus-visible { transform: translateY(-3px); box-shadow: 0 16px 42px rgba(61, 22, 0, .36); color: #fff; }
+.tk-banner:focus-visible { outline: var(--focus-ring); outline-offset: 4px; }
+.tk-banner-text { padding: 3rem 3rem 3rem 3.25rem; display: flex; flex-direction: column; justify-content: center; }
+.tk-banner-eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #F0D070; margin-bottom: .75rem; }
+.tk-banner h2 { color: #fff; font-style: italic; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; margin: 0 0 1rem; }
+.tk-banner-desc { color: rgba(255,255,255,.88); font-size: 1.02rem; margin: 0 0 1.25rem; max-width: 30rem; }
+.tk-banner-facts { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.6rem; }
+.tk-banner-facts span { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 50px; padding: .3rem .85rem; font-size: .84rem; font-weight: 700; }
+.tk-banner-cta { display: inline-flex; align-items: center; gap: .6rem; align-self: flex-start; background: #F0D070; color: #3d1600; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: .95rem; padding: .9rem 1.6rem; border-radius: var(--radius); }
+.tk-banner:hover .tk-banner-cta { background: #fff; }
+.tk-banner-note { font-size: .85rem; color: rgba(255,255,255,.75); margin-top: .9rem; }
+.tk-banner-art { position: relative; min-height: 320px; background: radial-gradient(circle at 50% 50%, rgba(240,208,112,.18) 0%, rgba(0,0,0,0) 65%); }
+.tk-banner-art svg, .tk-banner-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 760px) {
-  .thanksgiving-inner { grid-template-columns: 1fr; gap: 2rem; }
-  .thanksgiving-cta-block { align-items: flex-start; text-align: left; }
-  .thanksgiving-checklist { grid-template-columns: 1fr; }
+  .tk-promo { padding: 2.5rem 0; }
+  .tk-banner { grid-template-columns: 1fr; }
+  .tk-banner-art { min-height: 220px; order: -1; }
+  .tk-banner-text { padding: 1.75rem 1.5rem 2rem; }
 }
 </style>
 </head>
@@ -196,37 +89,60 @@ A Great Plains Hospitality Company<span class="sr-only"> (opens in new tab)</spa
 </div>
 </section>
 
-<!-- &#9472;&#9472; Thanksgiving Meal Kit &#9472;&#9472; -->
-<section class="thanksgiving-section" aria-labelledby="tk-home-heading">
+<!-- Thanksgiving banner: links into the shop -->
+<section class="tk-promo" id="tk-promo" aria-label="Thanksgiving Meal Kit">
   <div class="container">
-    <div class="thanksgiving-inner">
-      <div class="thanksgiving-content">
-        <span class="thanksgiving-eyebrow">&#129411; Now Available &mdash; Limited Quantity</span>
-        <h2 id="tk-home-heading">Thanksgiving Meal Kit</h2>
-        <p class="thanksgiving-desc">
-          Skip the stress this Thanksgiving. Our fully cooked, heat-and-serve meal kit feeds <strong style="color:#fff;">4&ndash;6 adults</strong> and has everything you need for the table.
-        </p>
-        <ul class="thanksgiving-checklist" aria-label="Kit includes">
-          <li>Turkey breast &amp; thigh meat</li>
-          <li>Garlic whipped potatoes</li>
-          <li>Turkey gravy</li>
-          <li>Stuffing</li>
-          <li>Green bean casserole</li>
-          <li>King's Hawaiian rolls</li>
-        </ul>
-        <div class="thanksgiving-meta">
-          <span class="thanksgiving-badge">&#128197; Pickup Nov 25th</span>
-          <span class="thanksgiving-badge">&#9200; 4&ndash;6 PM</span>
-          <span class="thanksgiving-badge">&#128205; Drekker Brewhalla, Fargo</span>
+    <a class="tk-banner" href="shop.html?item=thanksgiving-2026">
+      <div class="tk-banner-text">
+        <span class="tk-banner-eyebrow">Now taking orders &middot; limited quantity</span>
+        <h2>Thanksgiving Meal Kit</h2>
+        <p class="tk-banner-desc">A complete, fully cooked Thanksgiving dinner for 4&ndash;6. Turkey, potatoes, gravy, stuffing, green bean casserole and rolls, ready to heat and serve.</p>
+        <div class="tk-banner-facts">
+          <span>$90 per kit</span>
+          <span>Pickup Wed, Nov 25</span>
+          <span>Order by Nov 24</span>
         </div>
+        <span class="tk-banner-cta">Order in our shop <span aria-hidden="true">&rarr;</span></span>
+        <span class="tk-banner-note">Add a jar of our house-made pickles while you&rsquo;re there.</span>
       </div>
-      <div class="thanksgiving-cta-block">
-        <div class="thanksgiving-price" aria-label="Price: $90 per kit">$90</div>
-        <p class="thanksgiving-price-note">per kit &bull; no tax<br>Order by Nov 24</p>
-        <a href="thanksgiving-kit.html" class="btn btn-harvest btn-large">Order Now</a>
-        <div class="thanksgiving-sold-out" id="tk-home-soldout" role="alert">Orders are now closed</div>
+      <div class="tk-banner-art" aria-hidden="true">
+        <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" focusable="false">
+          <defs>
+            <path id="tk-leaf" d="M0,-34 C17,-22 19,10 0,34 C-19,10 -17,-22 0,-34 Z"/>
+            <radialGradient id="tk-plate" cx="50%" cy="45%" r="55%">
+              <stop offset="0" stop-color="#FFFDF6"/><stop offset="1" stop-color="#EFE3C8"/>
+            </radialGradient>
+          </defs>
+          <!-- table runner -->
+          <rect x="-10" y="232" width="420" height="120" fill="#2b0f00" opacity=".35"/>
+          <!-- fork and knife -->
+          <g fill="#F0D070" opacity=".9">
+            <rect x="78" y="118" width="6" height="110" rx="3"/>
+            <rect x="70" y="96" width="3" height="30" rx="1.5"/><rect x="77" y="96" width="3" height="30" rx="1.5"/><rect x="84" y="96" width="3" height="30" rx="1.5"/><rect x="91" y="96" width="3" height="30" rx="1.5"/>
+            <rect x="70" y="122" width="24" height="6" rx="3"/>
+            <path d="M318,96 C330,110 330,150 322,170 L322,228 L314,228 L314,96 Z"/>
+          </g>
+          <!-- plate -->
+          <circle cx="200" cy="165" r="92" fill="#000" opacity=".18"/>
+          <circle cx="200" cy="160" r="92" fill="url(#tk-plate)"/>
+          <circle cx="200" cy="160" r="70" fill="none" stroke="#D9C49A" stroke-width="2"/>
+          <!-- leaves on the plate rim -->
+          <g transform="translate(140,96) rotate(-35)"><use href="#tk-leaf" fill="#C8600A"/><path d="M0,-30 L0,30" stroke="#7B2D00" stroke-width="2"/></g>
+          <g transform="translate(163,84) rotate(5) scale(.8)"><use href="#tk-leaf" fill="#E3A52B"/><path d="M0,-30 L0,30" stroke="#8a5a00" stroke-width="2"/></g>
+          <g transform="translate(124,122) rotate(-70) scale(.75)"><use href="#tk-leaf" fill="#A84000"/><path d="M0,-30 L0,30" stroke="#5a1f00" stroke-width="2"/></g>
+          <g transform="translate(266,226) rotate(150) scale(.85)"><use href="#tk-leaf" fill="#C8600A"/><path d="M0,-30 L0,30" stroke="#7B2D00" stroke-width="2"/></g>
+          <g transform="translate(245,238) rotate(200) scale(.65)"><use href="#tk-leaf" fill="#E3A52B"/><path d="M0,-30 L0,30" stroke="#8a5a00" stroke-width="2"/></g>
+          <!-- plate text -->
+          <text x="200" y="152" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-style="italic" font-weight="700" font-size="30" fill="#7B2D00">Dinner</text>
+          <text x="200" y="182" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-style="italic" font-weight="700" font-size="30" fill="#7B2D00">for 4&#8211;6</text>
+          <!-- scattered leaves -->
+          <g transform="translate(345,58) rotate(25) scale(.7)" opacity=".85"><use href="#tk-leaf" fill="#E3A52B"/></g>
+          <g transform="translate(40,60) rotate(-20) scale(.6)" opacity=".7"><use href="#tk-leaf" fill="#C8600A"/></g>
+          <g transform="translate(372,262) rotate(70) scale(.6)" opacity=".7"><use href="#tk-leaf" fill="#A84000"/></g>
+          <g transform="translate(30,262) rotate(-110) scale(.7)" opacity=".8"><use href="#tk-leaf" fill="#E3A52B"/></g>
+        </svg>
       </div>
-    </div>
+    </a>
   </div>
 </section>
 
@@ -375,14 +291,11 @@ A Great Plains Hospitality Company<span class="sr-only"> (opens in new tab)</spa
 
 <script src="main.js"></script>
 <script>
-// Auto-hide the homepage Thanksgiving section after order deadline
-(function() {
-  var deadline = new Date('2026-11-24T23:59:59');
-  if (new Date() > deadline) {
-    var soldOut = document.getElementById('tk-home-soldout');
-    if (soldOut) soldOut.style.display = 'block';
-    var orderBtn = document.querySelector('.btn-harvest');
-    if (orderBtn) { orderBtn.style.pointerEvents = 'none'; orderBtn.style.opacity = '0.5'; orderBtn.textContent = 'Orders Closed'; }
+// Hide the Thanksgiving banner once ordering closes (Nov 24, 11:59 PM Central).
+(function () {
+  if (Date.now() > Date.parse('2026-11-24T23:59:59-06:00')) {
+    var promo = document.getElementById('tk-promo');
+    if (promo) promo.style.display = 'none';
   }
 })();
 </script>

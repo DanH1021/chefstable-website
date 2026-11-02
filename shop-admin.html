@@ -136,603 +136,618 @@
       .form-row,.form-row-3{grid-template-columns:1fr;}
       .admin-body{padding:1rem;}
     }
+    /* ADDED NOV 2026 */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    #edit-form > .form-group,#add-form > .form-group,.event-only > .form-group{margin-bottom:1rem;}
+    .form-group input,.form-group select,.form-group textarea{min-width:0;width:100%;}
+    .vis-toggle:focus-within .tog{outline:3px solid rgba(1,51,200,.35);outline-offset:2px;}
+    .login-box input{width:100%;padding:.7rem .9rem;border:2px solid #dde2f0;border-radius:4px;font-size:1rem;margin-bottom:1rem;}
+    .login-box label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:.35rem;}
+    .summary-strip{display:flex;gap:1.5rem;flex-wrap:wrap;background:var(--blue-pale);border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem;}
+    .order-card{border:2px solid #dde2f0;border-left:5px solid #ffc107;border-radius:6px;padding:1rem 1.25rem;margin-bottom:.85rem;background:#fff;}
+    .order-card.st-fulfilled{border-left-color:var(--green);background:#fbfefb;}
+    .order-card.st-cancelled{border-left-color:var(--red);opacity:.7;}
+    .order-card.st-archived{border-left-color:var(--gray);opacity:.6;}
+    .order-top{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+    .order-who{font-weight:700;font-size:1.05rem;}
+    .order-contact{font-size:.88rem;color:var(--gray);}
+    .order-contact a{color:var(--blue);}
+    .order-items{margin:.5rem 0;font-size:.95rem;}
+    .order-items li{list-style:none;}
+    .order-requests{background:#fff3cd;border:1px solid #ffe08a;border-radius:4px;padding:.45rem .7rem;font-size:.9rem;margin:.4rem 0;}
+    .order-pickup{font-size:.85rem;color:var(--gray);}
+    .order-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.6rem;}
+    .order-total{font-weight:700;text-align:right;white-space:nowrap;}
+    .order-date{font-size:.8rem;color:var(--gray);text-align:right;}
+    .chk{display:flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:700;}
+    .chk input{width:18px;height:18px;}
+    .field-hint{font-size:.78rem;color:var(--gray);}
+    .event-only[hidden],.stock-only[hidden],.cap-only[hidden]{display:none!important;}
+    .btn-sm{padding:.35rem .7rem;font-size:.72rem;}
+    @media print{
+      body{background:#fff;}
+      #admin-screen > *:not(.print-area),#login-screen{display:none!important;}
+    }
   </style>
 </head>
 <body>
 
-<!-- ── LOGIN ─────────────────────────────────────────────── -->
+<!-- LOGIN -->
 <div class="login-wrap" id="login-screen">
-  <div class="login-box">
+  <form class="login-box" id="login-form">
     <h1>Chef's Table Shop Admin</h1>
-    <p>Inventory, Orders &amp; Product Management</p>
-    <div id="login-err" style="display:none;" class="smsg smsg-error"></div>
-    <button class="btn btn-blue" id="login-btn" style="width:100%;">Enter Admin</button>
-  </div>
+    <p>Orders, products &amp; inventory</p>
+    <div id="login-err" style="display:none;" class="smsg smsg-error" role="alert"></div>
+    <label for="login-pw">Password</label>
+    <input type="password" id="login-pw" autocomplete="current-password" required>
+    <button class="btn btn-blue" id="login-btn" type="submit" style="width:100%;justify-content:center;">Sign In</button>
+  </form>
 </div>
 
-<!-- ── ADMIN SCREEN ───────────────────────────────────────── -->
+<!-- ADMIN -->
 <div id="admin-screen">
   <header class="admin-header">
-    <h1>Chef's Table — Shop Admin</h1>
+    <h1>Chef's Table &mdash; Shop Admin</h1>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
       <span class="refresh-info" id="refresh-time"></span>
-      <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.4);font-size:.78rem;" onclick="loadDashboard()">↺ Refresh</button>
+      <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.4);font-size:.78rem;" onclick="loadDashboard()">Refresh</button>
       <button class="logout-btn" onclick="logout()">Sign Out</button>
     </div>
   </header>
 
   <div class="admin-body">
-    <div id="global-msg" style="display:none;" class="smsg"></div>
+    <div id="global-msg" style="display:none;" class="smsg" role="status"></div>
 
     <div class="tabs" role="tablist">
-      <button class="tab-btn active" role="tab" onclick="switchTab('inventory')">📦 Inventory</button>
-      <button class="tab-btn" role="tab" onclick="switchTab('orders')">📋 Orders</button>
-      <button class="tab-btn" role="tab" onclick="switchTab('products')">➕ Add / Edit Products</button>
+      <button class="tab-btn active" role="tab" data-tab="orders">Orders</button>
+      <button class="tab-btn" role="tab" data-tab="products">Products</button>
+      <button class="tab-btn" role="tab" data-tab="add">Add Product</button>
     </div>
 
-    <!-- ── INVENTORY TAB ─────────────────────────────────── -->
-    <div class="tab-panel active" id="tab-inventory">
-      <div id="inventory-container"><div class="empty-state">Loading inventory...</div></div>
-    </div>
-
-    <!-- ── ORDERS TAB ────────────────────────────────────── -->
-    <div class="tab-panel" id="tab-orders">
+    <!-- ORDERS -->
+    <div class="tab-panel active" id="tab-orders">
       <div class="card">
         <div class="card-title">
-          All Orders
+          Orders
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <button class="btn btn-gray" style="font-size:.75rem;" onclick="exportOrders()">⬇ Export CSV</button>
+            <button class="btn btn-gray btn-sm" onclick="printPickupList()">Print pickup list</button>
+            <button class="btn btn-gray btn-sm" onclick="exportOrders()">Download spreadsheet (CSV)</button>
+            <button class="btn btn-outline btn-sm" onclick="importStripe()" title="Pulls in any paid Stripe checkouts that are missing from this list">Sync from Stripe</button>
           </div>
         </div>
         <div class="filter-bar">
-          <select id="f-status" onchange="renderOrders()">
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="fulfilled">Fulfilled</option>
+          <label class="sr-only" for="f-item">Product</label>
+          <select id="f-item"><option value="">All products</option></select>
+          <label class="sr-only" for="f-status">Status</label>
+          <select id="f-status">
+            <option value="pending">Waiting for pickup</option>
+            <option value="fulfilled">Picked up</option>
             <option value="cancelled">Cancelled</option>
-            <option value="archived">Archived</option>
+            <option value="active">Waiting + picked up</option>
+            <option value="">All</option>
           </select>
-          <select id="f-item" onchange="renderOrders()"><option value="">All Items</option></select>
-          <input type="text" id="f-search" placeholder="Search name or email…" oninput="renderOrders()" style="min-width:200px;">
+          <label class="sr-only" for="f-search">Search</label>
+          <input type="search" id="f-search" placeholder="Search name, email, phone, requests" style="min-width:240px;">
+          <label class="chk" style="font-weight:400;"><input type="checkbox" id="f-requests"> Only orders with special requests</label>
         </div>
-        <div class="tbl-wrap">
-          <table class="orders-table" aria-label="Shop orders">
-            <thead><tr>
-              <th>Date</th><th>Item</th><th>Qty</th><th>Subtotal</th><th>Tax</th><th>Total</th>
-              <th>Buyer</th><th>Pickup</th><th>Status</th><th>Actions</th>
-            </tr></thead>
-            <tbody id="orders-tbody"><tr><td colspan="10" class="empty-state">Loading...</td></tr></tbody>
-          </table>
-        </div>
-        <div id="orders-summary" style="margin-top:1rem;font-size:.85rem;color:var(--gray);"></div>
+        <div id="orders-summary"></div>
+        <div id="orders-list"><div class="empty-state">Loading orders...</div></div>
       </div>
     </div>
 
-    <!-- ── PRODUCTS TAB ──────────────────────────────────── -->
+    <!-- PRODUCTS -->
     <div class="tab-panel" id="tab-products">
+      <div id="products-list"><div class="empty-state">Loading products...</div></div>
+    </div>
+
+    <!-- ADD -->
+    <div class="tab-panel" id="tab-add">
       <div class="card">
-        <div class="card-title">
-          Add New Product
-        </div>
-        <div id="add-product-msg" style="display:none;" class="smsg"></div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="np-name">Product Name <span style="color:var(--red)">*</span></label>
-            <input type="text" id="np-name" placeholder="e.g. Pickle Gift Set">
-          </div>
-          <div class="form-group">
-            <label for="np-slug">URL Slug <span style="color:var(--red)">*</span></label>
-            <input type="text" id="np-slug" placeholder="e.g. pickle-gift-set">
-            <span class="form-help">Lowercase, hyphens only. Used in the store code.</span>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label for="np-desc">Description</label>
-          <textarea id="np-desc" placeholder="Describe the product…"></textarea>
-        </div>
-        <div class="form-row-3">
-          <div class="form-group">
-            <label for="np-price">Price (dollars) <span style="color:var(--red)">*</span></label>
-            <input type="number" id="np-price" min="1" step="0.01" placeholder="12.00">
-            <span class="form-help">Enter as dollars (e.g. 12.00 = $12.00). Tax added at checkout.</span>
-          </div>
-          <div class="form-group">
-            <label for="np-mode">Inventory Mode <span style="color:var(--red)">*</span></label>
-            <select id="np-mode" onchange="toggleNewItemFields()">
-              <option value="running_stock">Running Stock (e.g. Pickles)</option>
-              <option value="max_units">Max Units Cap (e.g. Easter Kits)</option>
-            </select>
-          </div>
-          <div class="form-group" id="np-max-wrap" style="display:none;">
-            <label for="np-max">Max Units Cap</label>
-            <input type="number" id="np-max" min="1" placeholder="100">
-            <span class="form-help">Total orders allowed before sold out.</span>
-          </div>
-          <div class="form-group" id="np-stock-wrap">
-            <label for="np-stock">Starting Stock</label>
-            <input type="number" id="np-stock" min="0" placeholder="24">
-            <span class="form-help">Current units on hand.</span>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="np-order">Sort Order</label>
-            <input type="number" id="np-order" min="0" value="10" placeholder="10">
-            <span class="form-help">Lower = appears first in store.</span>
-          </div>
-          <div class="form-group" style="justify-content:flex-end;">
-            <label>&nbsp;</label>
-            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-              <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;text-transform:none;font-size:.9rem;font-weight:400;">
-                <input type="checkbox" id="np-visible" style="width:auto;"> Visible in store immediately
-              </label>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-blue" onclick="addProduct()" style="min-width:180px;">Add Product to Store</button>
+        <div class="card-title">Add a Product</div>
+        <p class="field-hint" style="margin-bottom:1rem;">Tip: for next season's meal kit, use <strong>Copy for next season</strong> on the Products tab instead. It copies everything, so you only change the dates.</p>
+        <div id="add-form"></div>
+        <div id="add-msg"></div>
+        <button class="btn btn-blue" onclick="saveNewProduct()">Add Product</button>
       </div>
+    </div>
+  </div>
 
-      <hr class="section-divider">
+  <div class="print-area" id="print-area" hidden></div>
+</div>
 
-      <div class="card">
-        <div class="card-title">Existing Products</div>
-        <div id="edit-products-list"><div class="empty-state">Loading...</div></div>
-      </div>
-    </div>
-
-  </div><!-- /admin-body -->
-</div><!-- /admin-screen -->
-
-<!-- ── EDIT ITEM MODAL ───────────────────────────────────── -->
-<div class="modal-overlay" id="edit-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
-  <div class="modal">
-    <h2 id="edit-modal-title">Edit Product</h2>
-    <input type="hidden" id="edit-item-id">
-    <div id="edit-modal-msg" style="display:none;" class="smsg"></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="edit-name">Product Name</label>
-        <input type="text" id="edit-name">
-      </div>
-      <div class="form-group">
-        <label for="edit-slug">URL Slug</label>
-        <input type="text" id="edit-slug">
-      </div>
-    </div>
-    <div class="form-group" style="margin-bottom:1rem;">
-      <label for="edit-desc">Description</label>
-      <textarea id="edit-desc"></textarea>
-    </div>
-    <div class="form-row-3">
-      <div class="form-group">
-        <label for="edit-price">Price (dollars)</label>
-        <input type="number" id="edit-price" min="0.01" step="0.01">
-      </div>
-      <div class="form-group">
-        <label for="edit-mode">Inventory Mode</label>
-        <select id="edit-mode" onchange="toggleEditFields()">
-          <option value="running_stock">Running Stock</option>
-          <option value="max_units">Max Units Cap</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="edit-sort">Sort Order</label>
-        <input type="number" id="edit-sort" min="0">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group" id="edit-max-wrap">
-        <label for="edit-max">Max Units Cap</label>
-        <input type="number" id="edit-max" min="1">
-      </div>
-      <div class="form-group" id="edit-stock-wrap">
-        <label for="edit-stock">Current Stock</label>
-        <input type="number" id="edit-stock" min="0">
-        <span class="form-help">Use Reset Stock on inventory tab for full resets.</span>
-      </div>
-    </div>
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+  <div class="modal" style="max-width:720px;">
+    <h2 id="edit-title">Edit Product</h2>
+    <div id="edit-form"></div>
+    <div id="edit-msg"></div>
     <div class="modal-footer">
-      <button class="btn btn-gray" onclick="closeEditModal()">Cancel</button>
-      <button class="btn btn-blue" onclick="saveEditProduct()">Save Changes</button>
+      <button class="btn btn-gray" onclick="closeEdit()">Cancel</button>
+      <button class="btn btn-blue" onclick="saveEdit()">Save Changes</button>
     </div>
   </div>
 </div>
 
 <script>
-// ─── STATE ────────────────────────────────────────────
-let PW  = '';
-let DB  = { items: [], orders: [] };
-const TAX = 0.0775;
+var PW_KEY = 'ctc_admin_pw';
+var state = { items: [], orders: [] };
+var editingId = null;
 
-// ─── AUTH ─────────────────────────────────────────────
+function getPw() { try { return sessionStorage.getItem(PW_KEY) || ''; } catch (e) { return window.__pw || ''; } }
+function setPw(v) { try { if (v) sessionStorage.setItem(PW_KEY, v); else sessionStorage.removeItem(PW_KEY); } catch (e) {} window.__pw = v; }
 
-document.getElementById('login-btn').addEventListener('click', login);
-
-async function login() {
-  const pw  = 'open';
-  const err = document.getElementById('login-err');
-  err.style.display = 'none';
-  document.getElementById('login-btn').disabled = true;
-  document.getElementById('login-btn').textContent = 'Signing in...';
-  try {
-    const res = await api({ action:'get_dashboard', password:pw });
-    PW = pw; DB = res;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-screen').style.display = 'block';
-    renderAll();
-  } catch(e) {
-    err.textContent = 'Incorrect password.'; err.style.display = 'block';
-  }
-  document.getElementById('login-btn').disabled = false;
-  document.getElementById('login-btn').textContent = 'Enter Admin';
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function money(c) { return '$' + ((c || 0) / 100).toFixed(2); }
+function fmtDateTime(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+function fmtYmd(ymd) {
+  if (!ymd) return '';
+  return new Date(ymd + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function toLocalInput(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 
-function logout() {
-  PW = ''; DB = { items:[], orders:[] };
-  document.getElementById('admin-pw').value = '';
+function showMsg(elId, msg, type) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.className = 'smsg smsg-' + (type || 'info');
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (elId === 'global-msg' && type !== 'error') setTimeout(function () { el.style.display = 'none'; }, 5000);
+}
+
+// ---------------------------------------------------------------- API
+async function api(body) {
+  body.password = getPw();
+  var r = await fetch('/.netlify/functions/shop-admin', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  });
+  var data = {};
+  try { data = await r.json(); } catch (e) {}
+  if (r.status === 401) { logout('Your session ended. Please sign in again.'); throw new Error('Signed out'); }
+  if (!r.ok) throw new Error(data.error || 'Something went wrong.');
+  return data;
+}
+
+// ---------------------------------------------------------------- Login
+document.getElementById('login-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var pw = document.getElementById('login-pw').value;
+  var btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  showMsg('login-err', '');
+  setPw(pw);
+  try {
+    var r = await fetch('/.netlify/functions/shop-admin', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', password: pw }),
+    });
+    var d = await r.json().catch(function () { return {}; });
+    if (!r.ok) throw new Error(d.error || 'Could not sign in.');
+    enterAdmin();
+  } catch (err) {
+    setPw('');
+    showMsg('login-err', err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+});
+
+function enterAdmin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  document.getElementById('login-pw').value = '';
+  loadDashboard();
+}
+
+function logout(msg) {
+  setPw('');
   document.getElementById('admin-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  if (typeof msg === 'string') showMsg('login-err', msg, 'error');
 }
 
-// ─── API ──────────────────────────────────────────────
-async function api(body) {
-  const r = await fetch('/.netlify/functions/shop-admin', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ ...body, password: PW })
+// ---------------------------------------------------------------- Tabs
+document.querySelectorAll('.tab-btn').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.toggle('active', x === b); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + b.dataset.tab); });
   });
-  const d = await r.json();
-  if (!r.ok || d.error) throw new Error(d.error||'Error');
-  return d;
-}
+});
 
+// ---------------------------------------------------------------- Dashboard
 async function loadDashboard() {
   try {
-    DB = await api({ action:'get_dashboard' });
-    renderAll();
+    var d = await api({ action: 'get_dashboard' });
+    state.items = d.items || [];
+    state.orders = d.orders || [];
     document.getElementById('refresh-time').textContent = 'Updated ' + new Date().toLocaleTimeString();
-  } catch(e) { showMsg('global', 'Refresh failed: '+e.message, 'error'); }
+    fillItemFilter();
+    renderOrders();
+    renderProducts();
+  } catch (e) {
+    if (e.message !== 'Signed out') showMsg('global-msg', e.message, 'error');
+  }
 }
 
-function renderAll() {
-  renderInventory();
-  renderOrders();
-  renderEditProducts();
-  document.getElementById('refresh-time').textContent = 'Updated ' + new Date().toLocaleTimeString();
-}
-
-// ─── TABS ─────────────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => {
-    const names = ['inventory','orders','products'];
-    b.classList.toggle('active', names[i]===name);
-    b.setAttribute('aria-selected', b.classList.contains('active'));
-  });
-  document.querySelectorAll('.tab-panel').forEach(p => {
-    p.classList.toggle('active', p.id==='tab-'+name);
-  });
-}
-
-// ─── INVENTORY ────────────────────────────────────────
-function renderInventory() {
-  const c = document.getElementById('inventory-container');
-  if (!DB.items.length) { c.innerHTML='<div class="empty-state">No items found. Add products in the Add / Edit Products tab.</div>'; return; }
-  c.innerHTML = DB.items.map(item => {
-    const avail = item.available ?? 0;
-    const availColor = avail > 10 ? 'c-green' : avail > 0 ? 'c-gold' : 'c-red';
-    return `
-    <div class="item-card ${!item.visible?'hidden-item':''}" id="icard-${item.id}">
-      <div class="item-header">
-        <div>
-          <div class="item-name-row">
-            <span class="item-name">${esc(item.name)}</span>
-            <span class="mode-badge ${item.inventory_mode==='max_units'?'badge-max':'badge-stock'}">
-              ${item.inventory_mode==='max_units'?'Max Units':'Running Stock'}
-            </span>
-            <span class="price-tag">$${(item.price_cents/100).toFixed(2)} + 7.75% tax</span>
-          </div>
-          ${item.description ? `<div style="font-size:.85rem;color:var(--gray);margin-top:.3rem;">${esc(item.description)}</div>` : ''}
-        </div>
-        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="vis-toggle" onclick="toggleVis(${item.id},${!item.visible})" role="button" tabindex="0"
-            aria-label="Toggle visibility for ${esc(item.name)}"
-            onkeydown="if(event.key==='Enter')toggleVis(${item.id},${!item.visible})">
-            <div class="tog ${item.visible?'on':''}" id="tog-${item.id}"></div>
-            <span class="tog-label" id="tog-lbl-${item.id}">${item.visible?'Visible':'Hidden'}</span>
-          </div>
-          <button class="btn btn-outline" style="font-size:.75rem;" onclick="openEditModal(${item.id})">Edit</button>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat"><span class="stat-num ${availColor}">${avail}</span><span class="stat-label">Available</span></div>
-        <div class="stat"><span class="stat-num c-gray">${item.pending_qty||0}</span><span class="stat-label">Pending</span></div>
-        <div class="stat"><span class="stat-num c-gray">${item.fulfilled_qty||0}</span><span class="stat-label">Fulfilled</span></div>
-        ${item.inventory_mode==='max_units'
-          ? `<div class="stat"><span class="stat-num c-gray">${item.max_units||0}</span><span class="stat-label">Max Cap</span></div>`
-          : `<div class="stat"><span class="stat-num c-gray">${item.current_stock||0}</span><span class="stat-label">Stock Level</span></div>`
-        }
-      </div>
-
-      <div id="imsg-${item.id}" style="display:none;" class="smsg"></div>
-
-      <div class="controls-row">
-        ${item.inventory_mode==='max_units' ? `
-          <div class="ctrl"><label>Set Max Units Cap</label><input type="number" id="max-${item.id}" value="${item.max_units||0}" min="0"></div>
-          <button class="btn btn-blue" onclick="setMax(${item.id})">Update Cap</button>
-        ` : `
-          <div class="ctrl"><label>Reset Stock To</label><input type="number" id="rst-${item.id}" value="${item.current_stock||0}" min="0"></div>
-          <button class="btn btn-gold" onclick="resetStock(${item.id})" title="Sets new baseline; archives fulfilled orders">Reset Stock</button>
-          <div class="ctrl"><label>Add to Stock</label><input type="number" id="add-${item.id}" min="1" placeholder="qty" style="width:90px;"></div>
-          <button class="btn btn-green" onclick="addStock(${item.id})">+ Add</button>
-        `}
-        <button class="btn btn-gray" style="font-size:.75rem;margin-left:auto;" onclick="switchMode(${item.id},'${item.inventory_mode==='max_units'?'running_stock':'max_units'}')">
-          Switch to ${item.inventory_mode==='max_units'?'Running Stock':'Max Units'} Mode
-        </button>
-      </div>
-    </div>`;
+function fillItemFilter() {
+  var sel = document.getElementById('f-item');
+  var cur = sel.value;
+  var firstLoad = !sel.dataset.loaded;
+  sel.innerHTML = '<option value="">All products</option>' + state.items.map(function (i) {
+    return '<option value="' + i.id + '">' + esc(i.name) + (i.visible ? '' : ' (hidden)') + '</option>';
   }).join('');
+  if (firstLoad) {
+    // Default to the visible holiday kit, since that is what people check most.
+    var ev = state.items.find(function (i) { return i.visible && i.pickup_mode === 'event'; });
+    sel.value = ev ? String(ev.id) : '';
+    sel.dataset.loaded = '1';
+  } else {
+    sel.value = cur;
+  }
 }
 
-async function setMax(id) {
-  try {
-    await api({ action:'set_max_units', item_id:id, max_units: document.getElementById('max-'+id).value });
-    showMsg('item-'+id,'Max units updated.','success'); await loadDashboard();
-  } catch(e) { showMsg('item-'+id,'Error: '+e.message,'error'); }
+['f-item', 'f-status', 'f-requests'].forEach(function (id) { document.getElementById(id).addEventListener('change', renderOrders); });
+document.getElementById('f-search').addEventListener('input', renderOrders);
+
+// ---------------------------------------------------------------- Orders
+// One Stripe checkout can include several products; they are grouped into one card.
+function groupOrders(rows) {
+  var map = {}, list = [];
+  rows.forEach(function (o) {
+    var key = o.order_ref || ('row-' + o.id);
+    if (!map[key]) { map[key] = { key: key, ref: o.order_ref, id: o.id, lines: [], first: o }; list.push(map[key]); }
+    map[key].lines.push(o);
+  });
+  list.forEach(function (g) {
+    var st = g.lines.map(function (l) { return l.status; });
+    g.status = st.indexOf('pending') >= 0 ? 'pending' : st.indexOf('fulfilled') >= 0 ? 'fulfilled' : st[0];
+    g.total = g.lines.reduce(function (s, l) { return s + (l.total_cents || 0); }, 0);
+  });
+  return list;
 }
 
-async function resetStock(id) {
-  const val = document.getElementById('rst-'+id).value;
-  if (!confirm(`Reset stock to ${val}?\n\nThis archives all fulfilled orders so they no longer count against inventory. Pending (unfulfilled) orders still count.`)) return;
-  try {
-    await api({ action:'reset_stock', item_id:id, new_stock:val });
-    showMsg('item-'+id,`Stock reset to ${val}. Fulfilled orders archived.`,'success'); await loadDashboard();
-  } catch(e) { showMsg('item-'+id,'Error: '+e.message,'error'); }
-}
-
-async function addStock(id) {
-  const val = document.getElementById('add-'+id).value;
-  if (!val||parseInt(val)<=0) { showMsg('item-'+id,'Enter a quantity.','error'); return; }
-  try {
-    const r = await api({ action:'add_stock', item_id:id, add_qty:val });
-    showMsg('item-'+id,`Added ${val}. New stock: ${r.new_stock}`,'success'); await loadDashboard();
-  } catch(e) { showMsg('item-'+id,'Error: '+e.message,'error'); }
-}
-
-async function toggleVis(id, vis) {
-  try {
-    await api({ action:'toggle_visibility', item_id:id, visible:vis });
-    document.getElementById('tog-'+id).classList.toggle('on',vis);
-    document.getElementById('tog-lbl-'+id).textContent = vis?'Visible':'Hidden';
-    const item = DB.items.find(i=>i.id===id); if(item) item.visible=vis;
-    document.getElementById('icard-'+id).classList.toggle('hidden-item',!vis);
-    renderEditProducts();
-  } catch(e) { showMsg('global','Error: '+e.message,'error'); }
-}
-
-async function switchMode(id, newMode) {
-  const label = newMode==='max_units'?'Max Units Cap':'Running Stock';
-  if (!confirm(`Switch to ${label} mode?`)) return;
-  try {
-    if (newMode==='max_units') await api({ action:'set_max_units', item_id:id, max_units:100 });
-    else await api({ action:'reset_stock', item_id:id, new_stock:0 });
-    await loadDashboard();
-  } catch(e) { showMsg('global','Error: '+e.message,'error'); }
-}
-
-// ─── ORDERS ───────────────────────────────────────────
-function renderOrders() {
-  const status = document.getElementById('f-status').value;
-  const item   = document.getElementById('f-item').value;
-  const search = document.getElementById('f-search').value.toLowerCase();
-
-  // Populate item filter
-  const sel = document.getElementById('f-item');
-  const cur = sel.value;
-  const names = [...new Set((DB.orders||[]).map(o=>o.item_name))];
-  sel.innerHTML = '<option value="">All Items</option>' + names.map(n=>`<option value="${esc(n)}" ${cur===n?'selected':''}>${esc(n)}</option>`).join('');
-
-  let rows = (DB.orders||[]).filter(o => {
-    if (status && o.status!==status) return false;
-    if (item && o.item_name!==item) return false;
-    if (search) {
-      const h = ((o.buyer_name||'')+' '+(o.buyer_email||'')).toLowerCase();
-      if (!h.includes(search)) return false;
+function filteredGroups() {
+  var itemId = document.getElementById('f-item').value;
+  var status = document.getElementById('f-status').value;
+  var q = document.getElementById('f-search').value.trim().toLowerCase();
+  var reqOnly = document.getElementById('f-requests').checked;
+  var groups = groupOrders(state.orders);
+  return groups.filter(function (g) {
+    if (itemId && !g.lines.some(function (l) { return String(l.item_id) === itemId; })) return false;
+    if (status === 'active' && !(g.status === 'pending' || g.status === 'fulfilled')) return false;
+    if (status && status !== 'active' && g.status !== status) return false;
+    if (reqOnly && !g.first.notes) return false;
+    if (q) {
+      var hay = [g.first.buyer_name, g.first.buyer_email, g.first.buyer_phone, g.first.notes].join(' ').toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
     }
     return true;
   });
+}
 
-  // Summary
-  const pending = rows.filter(o=>o.status==='pending');
-  const pendingTotal = pending.reduce((s,o)=>s+(o.total_cents||0),0);
-  document.getElementById('orders-summary').textContent =
-    `Showing ${rows.length} orders — ${pending.length} pending ($${(pendingTotal/100).toFixed(2)} incl. tax)`;
+function renderOrders() {
+  var groups = filteredGroups();
+  var itemId = document.getElementById('f-item').value;
 
-  const tbody = document.getElementById('orders-tbody');
-  if (!rows.length) { tbody.innerHTML='<tr><td colspan="10" class="empty-state">No orders found.</td></tr>'; return; }
+  // Summary for the selected product
+  var sum = '';
+  if (itemId) {
+    var it = state.items.find(function (i) { return String(i.id) === itemId; });
+    if (it) {
+      var cap = it.inventory_mode === 'max_units' ? it.max_units : it.current_stock;
+      var withReq = groupOrders(state.orders).filter(function (g) {
+        return g.status === 'pending' && g.first.notes && g.lines.some(function (l) { return String(l.item_id) === itemId; });
+      }).length;
+      sum = '<div class="summary-strip">' +
+        stat(it.pending_qty + it.fulfilled_qty, 'Sold', 'c-gold') +
+        stat(it.pending_qty, 'Waiting for pickup', '') +
+        stat(it.fulfilled_qty, 'Picked up', 'c-green') +
+        stat(it.available, 'Left to sell', it.available ? 'c-green' : 'c-red') +
+        stat(cap, it.inventory_mode === 'max_units' ? 'Limit' : 'Stock', 'c-gray') +
+        stat(withReq, 'With special requests', withReq ? 'c-red' : 'c-gray') +
+        '</div>';
+    }
+  }
+  document.getElementById('orders-summary').innerHTML = sum;
 
-  tbody.innerHTML = rows.map(o => {
-    const sub  = o.subtotal_cents ? '$'+(o.subtotal_cents/100).toFixed(2) : '—';
-    const tax  = o.tax_cents      ? '$'+(o.tax_cents/100).toFixed(2)      : '—';
-    const tot  = o.total_cents    ? '$'+(o.total_cents/100).toFixed(2)    : '—';
-    return `
-    <tr id="orow-${o.id}">
-      <td style="white-space:nowrap;font-size:.8rem;">
-        ${new Date(o.created_at).toLocaleDateString()}<br>
-        <span style="color:var(--gray);">${new Date(o.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
-      </td>
-      <td>${esc(o.item_name)}</td>
-      <td style="text-align:center;font-weight:700;">${o.quantity||1}</td>
-      <td>${sub}</td>
-      <td style="color:var(--gray);font-size:.82rem;">${tax}</td>
-      <td style="font-weight:700;">${tot}</td>
-      <td>
-        <strong>${esc(o.buyer_name)}</strong><br>
-        <a href="mailto:${esc(o.buyer_email)}" style="font-size:.8rem;">${esc(o.buyer_email)}</a><br>
-        ${o.buyer_phone?`<span style="font-size:.78rem;color:var(--gray);">${esc(o.buyer_phone)}</span>`:''}
-        ${o.notes?`<br><span style="font-size:.75rem;color:var(--gray);font-style:italic;">${esc(o.notes)}</span>`:''}
-      </td>
-      <td style="white-space:nowrap;">${o.pickup_date||'—'}</td>
-      <td><span class="sbadge s-${o.status}">${o.status}</span></td>
-      <td style="white-space:nowrap;">
-        ${o.status==='pending'?`
-          <button class="btn btn-green" style="font-size:.72rem;padding:.35rem .75rem;display:block;margin-bottom:.3rem;" onclick="fulfillOrder('${o.id}')">✓ Fulfill</button>
-          <button class="btn btn-red" style="font-size:.72rem;padding:.35rem .75rem;display:block;" onclick="cancelOrder('${o.id}')">✕ Cancel</button>
-        `:'—'}
-      </td>
-    </tr>`;
+  var el = document.getElementById('orders-list');
+  if (!groups.length) { el.innerHTML = '<div class="empty-state">No orders match these filters.</div>'; return; }
+
+  el.innerHTML = groups.map(function (g) {
+    var o = g.first;
+    var phone = o.buyer_phone ? '<a href="tel:' + esc(o.buyer_phone) + '">' + esc(o.buyer_phone) + '</a>' : 'no phone';
+    var items = g.lines.map(function (l) {
+      return '<li><strong>' + l.quantity + ' &times; ' + esc(l.item_name) + '</strong>' +
+        (l.status !== g.status ? ' <span class="sbadge s-' + l.status + '">' + l.status + '</span>' : '') + '</li>';
+    }).join('');
+    var label = { pending: 'Waiting for pickup', fulfilled: 'Picked up', cancelled: 'Cancelled', archived: 'Archived' }[g.status] || g.status;
+    var target = g.ref ? 'data-ref="' + esc(g.ref) + '"' : 'data-id="' + g.id + '"';
+    var actions = '';
+    if (g.status === 'pending') {
+      actions = '<button class="btn btn-green btn-sm" data-act="fulfilled" ' + target + '>Mark picked up</button>' +
+                '<button class="btn btn-gray btn-sm" data-act="cancelled" ' + target + '>Cancel order</button>';
+    } else if (g.status === 'fulfilled' || g.status === 'cancelled') {
+      actions = '<button class="btn btn-gray btn-sm" data-act="pending" ' + target + '>Undo (back to waiting)</button>';
+    }
+    return '<div class="order-card st-' + g.status + '">' +
+      '<div class="order-top">' +
+        '<div><div class="order-who">' + esc(o.buyer_name || '(no name)') + '</div>' +
+        '<div class="order-contact">' + phone + ' &middot; <a href="mailto:' + esc(o.buyer_email) + '">' + esc(o.buyer_email) + '</a></div></div>' +
+        '<div><div class="order-total">' + money(g.total) + '</div><div class="order-date">Ordered ' + fmtDateTime(o.created_at) + '</div></div>' +
+      '</div>' +
+      '<ul class="order-items">' + items + '</ul>' +
+      (o.notes ? '<div class="order-requests"><strong>Special requests:</strong> ' + esc(o.notes) + '</div>' : '') +
+      '<div class="order-pickup">Pickup: ' + esc(o.pickup_details || fmtYmd(o.pickup_date) || 'not set') + '</div>' +
+      '<div class="order-actions"><span class="sbadge s-' + g.status + '">' + label + '</span>' + actions + '</div>' +
+    '</div>';
   }).join('');
 }
 
-async function fulfillOrder(id) {
-  if (!confirm('Mark this order as fulfilled?')) return;
-  try { await api({ action:'fulfill_order', order_id:id }); await loadDashboard(); showMsg('global','Order fulfilled.','success'); }
-  catch(e) { showMsg('global','Error: '+e.message,'error'); }
+function stat(n, label, cls) {
+  return '<div class="stat"><span class="stat-num ' + (cls || '') + '">' + (n == null ? 0 : n) + '</span><div class="stat-label">' + label + '</div></div>';
 }
 
-async function cancelOrder(id) {
-  if (!confirm('Cancel this order? Inventory will be released back to available.')) return;
-  try { await api({ action:'cancel_order', order_id:id }); await loadDashboard(); showMsg('global','Order cancelled.','success'); }
-  catch(e) { showMsg('global','Error: '+e.message,'error'); }
-}
+document.getElementById('orders-list').addEventListener('click', async function (e) {
+  var b = e.target.closest('button[data-act]');
+  if (!b) return;
+  var status = b.dataset.act;
+  if (status === 'cancelled' && !confirm('Cancel this order? This frees up the item for someone else.\n\nIt does NOT refund the customer. Refund them in Stripe if needed.')) return;
+  b.disabled = true;
+  try {
+    var body = { action: 'set_order_status', status: status };
+    if (b.dataset.ref) body.order_ref = b.dataset.ref; else body.order_id = b.dataset.id;
+    await api(body);
+    await loadDashboard();
+  } catch (err) { b.disabled = false; showMsg('global-msg', err.message, 'error'); }
+});
 
 function exportOrders() {
-  const rows = DB.orders || [];
-  if (!rows.length) { alert('No orders to export.'); return; }
-  const cols = ['id','created_at','item_name','quantity','subtotal_cents','tax_cents','total_cents','buyer_name','buyer_email','buyer_phone','pickup_date','status','notes'];
-  const csv  = [cols.join(','), ...rows.map(o => cols.map(c => '"'+(String(o[c]||'').replace(/"/g,'""'))+'"').join(','))].join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'chefstable-orders-' + new Date().toISOString().slice(0,10) + '.csv';
+  var groups = filteredGroups();
+  var rows = [['Ordered', 'Name', 'Phone', 'Email', 'Items', 'Total', 'Special requests', 'Pickup', 'Status']];
+  groups.forEach(function (g) {
+    var o = g.first;
+    rows.push([fmtDateTime(o.created_at), o.buyer_name, o.buyer_phone || '', o.buyer_email,
+      g.lines.map(function (l) { return l.quantity + ' x ' + l.item_name; }).join('; '),
+      (g.total / 100).toFixed(2), o.notes || '', o.pickup_details || o.pickup_date || '', g.status]);
+  });
+  var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'chefs-table-orders-' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
 }
 
-// ─── ADD PRODUCT ──────────────────────────────────────
-function toggleNewItemFields() {
-  const mode = document.getElementById('np-mode').value;
-  document.getElementById('np-max-wrap').style.display   = mode==='max_units'   ? 'flex' : 'none';
-  document.getElementById('np-stock-wrap').style.display = mode==='running_stock'? 'flex' : 'none';
+function printPickupList() {
+  var groups = filteredGroups().filter(function (g) { return g.status === 'pending' || g.status === 'fulfilled'; });
+  groups.sort(function (a, b) {
+    var la = (a.first.buyer_name || '').trim().split(/\s+/).pop().toLowerCase();
+    var lb = (b.first.buyer_name || '').trim().split(/\s+/).pop().toLowerCase();
+    return la < lb ? -1 : la > lb ? 1 : 0;
+  });
+  var itemSel = document.getElementById('f-item');
+  var title = itemSel.value ? itemSel.options[itemSel.selectedIndex].text : 'All products';
+  var totals = {};
+  groups.forEach(function (g) { g.lines.forEach(function (l) { totals[l.item_name] = (totals[l.item_name] || 0) + l.quantity; }); });
+  var html = '<h2 style="font-family:Lato,sans-serif;">Pickup list: ' + esc(title) + '</h2>' +
+    '<p style="font-family:Lato,sans-serif;">' + groups.length + ' orders &middot; ' +
+    Object.keys(totals).map(function (k) { return totals[k] + ' ' + esc(k); }).join(' &middot; ') +
+    ' &middot; printed ' + new Date().toLocaleString() + '</p>' +
+    '<table style="width:100%;border-collapse:collapse;font-family:Lato,sans-serif;font-size:12px;">' +
+    '<tr>' + ['&#10003;', 'Name', 'Phone', 'Items', 'Special requests'].map(function (h) {
+      return '<th style="text-align:left;border-bottom:2px solid #000;padding:6px;">' + h + '</th>';
+    }).join('') + '</tr>' +
+    groups.map(function (g) {
+      var o = g.first;
+      var td = function (v) { return '<td style="border-bottom:1px solid #999;padding:6px;vertical-align:top;">' + v + '</td>'; };
+      return '<tr>' + td(g.status === 'fulfilled' ? '&#10003;' : '&#9744;') + td(esc(o.buyer_name)) + td(esc(o.buyer_phone || '')) +
+        td(g.lines.map(function (l) { return l.quantity + ' &times; ' + esc(l.item_name); }).join('<br>')) + td(esc(o.notes || '')) + '</tr>';
+    }).join('') + '</table>';
+  var area = document.getElementById('print-area');
+  area.innerHTML = html;
+  area.hidden = false;
+  window.print();
+  area.hidden = true;
 }
 
-async function addProduct() {
-  const name  = document.getElementById('np-name').value.trim();
-  const slug  = document.getElementById('np-slug').value.trim();
-  const price = parseFloat(document.getElementById('np-price').value);
-  const mode  = document.getElementById('np-mode').value;
-  const max   = parseInt(document.getElementById('np-max').value)||0;
-  const stock = parseInt(document.getElementById('np-stock').value)||0;
-  const order = parseInt(document.getElementById('np-order').value)||10;
-  const vis   = document.getElementById('np-visible').checked;
-  const desc  = document.getElementById('np-desc').value.trim();
-
-  if (!name||!slug||!price) { showMsg('add-product','Please fill in Name, Slug, and Price.','error'); return; }
-  if (!/^[a-z0-9-]+$/.test(slug)) { showMsg('add-product','Slug must be lowercase letters, numbers, and hyphens only.','error'); return; }
-
+async function importStripe() {
+  showMsg('global-msg', 'Checking Stripe for orders from the last 60 days...', 'info');
   try {
-    await api({ action:'add_item', name, slug, description:desc, price_cents:Math.round(price*100),
-                inventory_mode:mode, max_units:max, current_stock:stock, sort_order:order, visible:vis });
-    showMsg('add-product','Product added successfully!','success');
-    // Clear form
-    ['np-name','np-slug','np-price','np-max','np-stock','np-desc'].forEach(id=>{document.getElementById(id).value='';});
-    document.getElementById('np-visible').checked = false;
+    var r = await api({ action: 'import_stripe', days: 60 });
+    showMsg('global-msg', r.recorded ? ('Added ' + r.recorded + ' missing order line(s) from Stripe.') : 'Everything is already up to date.', 'success');
     await loadDashboard();
-  } catch(e) { showMsg('add-product','Error: '+e.message,'error'); }
+  } catch (e) { showMsg('global-msg', e.message, 'error'); }
 }
 
-// ─── EDIT PRODUCTS LIST ───────────────────────────────
-function renderEditProducts() {
-  const c = document.getElementById('edit-products-list');
-  if (!DB.items.length) { c.innerHTML='<div class="empty-state">No products yet.</div>'; return; }
-  c.innerHTML = `<table class="orders-table" aria-label="Product list">
-    <thead><tr><th>Name</th><th>Slug</th><th>Price</th><th>Mode</th><th>Visible</th><th>Sort</th><th>Actions</th></tr></thead>
-    <tbody>${DB.items.map(item=>`
-      <tr>
-        <td><strong>${esc(item.name)}</strong><br><span style="font-size:.78rem;color:var(--gray);">${esc(item.description||'')}</span></td>
-        <td style="font-family:monospace;font-size:.82rem;">${esc(item.slug)}</td>
-        <td>$${(item.price_cents/100).toFixed(2)}</td>
-        <td><span class="mode-badge ${item.inventory_mode==='max_units'?'badge-max':'badge-stock'}" style="font-size:.7rem;">
-          ${item.inventory_mode==='max_units'?'Max Units':'Running Stock'}
-        </span></td>
-        <td><span class="sbadge ${item.visible?'s-fulfilled':'s-cancelled'}">${item.visible?'Yes':'No'}</span></td>
-        <td>${item.sort_order}</td>
-        <td><button class="btn btn-outline" style="font-size:.75rem;" onclick="openEditModal(${item.id})">Edit</button></td>
-      </tr>
-    `).join('')}</tbody>
-  </table>`;
+// ---------------------------------------------------------------- Products
+function renderProducts() {
+  var el = document.getElementById('products-list');
+  if (!state.items.length) { el.innerHTML = '<div class="empty-state">No products yet.</div>'; return; }
+  el.innerHTML = state.items.map(function (i) {
+    var isMax = i.inventory_mode === 'max_units';
+    var pickup = i.pickup_mode === 'event'
+      ? 'Pickup ' + esc([fmtYmd(i.pickup_date), i.pickup_window, i.pickup_location].filter(Boolean).join(', ') || 'not set')
+      : 'Weekday pickup at the kitchen (customer picks a date)';
+    var deadline = i.order_deadline ? ' &middot; Ordering closes ' + fmtDateTime(i.order_deadline) : '';
+    var statusTxt = i.status === 'closed' ? '<span class="sbadge s-cancelled">Ordering closed</span>' :
+                    i.status === 'sold_out' ? '<span class="sbadge s-cancelled">Sold out</span>' : '';
+    var ctrl = isMax
+      ? '<div class="ctrl"><label for="cap-' + i.id + '">Total to sell</label><input type="number" min="0" id="cap-' + i.id + '" value="' + (i.max_units || 0) + '"></div>' +
+        '<button class="btn btn-blue btn-sm" onclick="saveCap(' + i.id + ')">Update limit</button>'
+      : '<div class="ctrl"><label for="add-' + i.id + '">Add to stock</label><input type="number" id="add-' + i.id + '" placeholder="e.g. 12"></div>' +
+        '<button class="btn btn-blue btn-sm" onclick="addStock(' + i.id + ')">Add</button>' +
+        '<div class="ctrl"><label for="reset-' + i.id + '">Recount stock</label><input type="number" min="0" id="reset-' + i.id + '" placeholder="On hand now"></div>' +
+        '<button class="btn btn-gray btn-sm" onclick="resetStock(' + i.id + ')">Set</button>';
+    return '<div class="item-card' + (i.visible ? '' : ' hidden-item') + '">' +
+      '<div class="item-header">' +
+        '<div><div class="item-name-row"><span class="item-name">' + esc((i.icon ? i.icon + ' ' : '') + i.name) + '</span>' + statusTxt + '</div>' +
+        '<div class="price-tag">' + money(i.price_cents) + (i.taxable === false ? ', no sales tax' : ' + sales tax') + ' &middot; up to ' + (i.max_per_order || 10) + ' per order</div>' +
+        '<div class="field-hint">' + pickup + deadline + '</div></div>' +
+        '<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">' +
+          '<label class="vis-toggle" title="Show on the Shop page"><input type="checkbox" class="sr-only" ' + (i.visible ? 'checked' : '') + ' onchange="toggleVis(' + i.id + ', this.checked)">' +
+          '<span class="tog' + (i.visible ? ' on' : '') + '" aria-hidden="true"></span><span class="tog-label">' + (i.visible ? 'On shop page' : 'Hidden') + '</span></label>' +
+          '<button class="btn btn-outline btn-sm" onclick="openEdit(' + i.id + ')">Edit</button>' +
+          '<button class="btn btn-gray btn-sm" onclick="duplicateItem(' + i.id + ')">Copy for next season</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stats-row">' +
+        stat(i.available, 'Left to sell', i.available ? 'c-green' : 'c-red') +
+        stat(i.pending_qty, 'Waiting for pickup', '') +
+        stat(i.fulfilled_qty, 'Picked up', 'c-green') +
+        stat(isMax ? i.max_units : i.current_stock, isMax ? 'Limit' : 'Stock', 'c-gray') +
+      '</div>' +
+      '<div class="controls-row">' + ctrl + '</div>' +
+    '</div>';
+  }).join('');
 }
 
-// ─── EDIT MODAL ───────────────────────────────────────
-function openEditModal(id) {
-  const item = DB.items.find(i=>i.id===id);
-  if (!item) return;
-  document.getElementById('edit-item-id').value  = id;
-  document.getElementById('edit-name').value     = item.name||'';
-  document.getElementById('edit-slug').value     = item.slug||'';
-  document.getElementById('edit-desc').value     = item.description||'';
-  document.getElementById('edit-price').value    = (item.price_cents/100).toFixed(2);
-  document.getElementById('edit-mode').value     = item.inventory_mode||'running_stock';
-  document.getElementById('edit-max').value      = item.max_units||0;
-  document.getElementById('edit-stock').value    = item.current_stock||0;
-  document.getElementById('edit-sort').value     = item.sort_order||0;
-  document.getElementById('edit-modal-msg').style.display='none';
-  toggleEditFields();
-  document.getElementById('edit-modal').style.display='flex';
+async function quick(body, okMsg) {
+  try { await api(body); showMsg('global-msg', okMsg, 'success'); await loadDashboard(); }
+  catch (e) { showMsg('global-msg', e.message, 'error'); }
+}
+function saveCap(id) { quick({ action: 'update_item', item_id: id, item: { max_units: document.getElementById('cap-' + id).value } }, 'Limit updated.'); }
+function addStock(id) { quick({ action: 'add_stock', item_id: id, add_qty: document.getElementById('add-' + id).value }, 'Stock added.'); }
+function resetStock(id) {
+  var v = document.getElementById('reset-' + id).value;
+  if (v === '' || !confirm('Set stock on hand to ' + v + '? Orders already picked up stop counting against stock.')) return;
+  quick({ action: 'reset_stock', item_id: id, new_stock: v }, 'Stock updated.');
+}
+function toggleVis(id, vis) { quick({ action: 'update_item', item_id: id, item: { visible: vis } }, vis ? 'Now showing on the shop page.' : 'Hidden from the shop page.'); }
+function duplicateItem(id) {
+  var src = state.items.find(function (i) { return i.id === id; });
+  var name = prompt('Name for the copy:', src.name);
+  if (!name) return;
+  var slug = prompt('Short web name for the copy (lowercase, hyphens), e.g. easter-2027:', src.slug.replace(/\d{4}$/, '') + (new Date().getFullYear() + 1));
+  if (!slug) return;
+  quick({ action: 'duplicate_item', item_id: id, new_name: name, new_slug: slug }, 'Copy created. It is hidden until you edit the dates and switch it on.');
+}
+
+// ---------------------------------------------------------------- Product form
+function productForm(prefix, i) {
+  i = i || { inventory_mode: 'max_units', pickup_mode: 'event', taxable: false, max_per_order: 10, sort_order: 10, visible: false };
+  var f = function (id) { return prefix + '-' + id; };
+  return '' +
+    '<div class="form-row">' +
+      fg(f('name'), 'Product name *', '<input id="' + f('name') + '" value="' + esc(i.name || '') + '">') +
+      fg(f('slug'), 'Short web name *', '<input id="' + f('slug') + '" value="' + esc(i.slug || '') + '" placeholder="thanksgiving-2027">', 'Lowercase and hyphens. Used in links, e.g. shop.html?item=thanksgiving-2027') +
+    '</div>' +
+    fg(f('description'), 'Description', '<textarea id="' + f('description') + '">' + esc(i.description || '') + '</textarea>') +
+    fg(f('details'), "What's included (one per line)", '<textarea id="' + f('details') + '" style="min-height:120px;">' + esc(i.details || '') + '</textarea>') +
+    '<div class="form-row-3">' +
+      fg(f('price'), 'Price ($) *', '<input id="' + f('price') + '" type="number" step="0.01" min="0" value="' + (i.price_cents ? (i.price_cents / 100).toFixed(2) : '') + '">') +
+      fg(f('max_per_order'), 'Max per order', '<input id="' + f('max_per_order') + '" type="number" min="1" value="' + (i.max_per_order || 10) + '">') +
+      fg(f('icon'), 'Icon (emoji)', '<input id="' + f('icon') + '" value="' + esc(i.icon || '') + '" maxlength="8">') +
+    '</div>' +
+    '<div class="form-group" style="margin-bottom:1rem;"><label class="chk"><input type="checkbox" id="' + f('taxable') + '"' + (i.taxable !== false ? ' checked' : '') + '> Charge sales tax (7.75%)</label>' +
+      '<span class="form-help">Leave unchecked for heat-and-serve meal kits.</span></div>' +
+    '<div class="form-row">' +
+      fg(f('inventory_mode'), 'How quantity works', '<select id="' + f('inventory_mode') + '" onchange="syncForm(\'' + prefix + '\')">' +
+        '<option value="max_units"' + (i.inventory_mode === 'max_units' ? ' selected' : '') + '>Fixed number to sell (meal kits)</option>' +
+        '<option value="running_stock"' + (i.inventory_mode === 'running_stock' ? ' selected' : '') + '>Stock on hand (pickles)</option></select>') +
+      '<div class="cap-only">' + fg(f('max_units'), 'Total to sell', '<input id="' + f('max_units') + '" type="number" min="0" value="' + (i.max_units || 0) + '">') + '</div>' +
+      '<div class="stock-only">' + fg(f('current_stock'), 'Stock on hand', '<input id="' + f('current_stock') + '" type="number" min="0" value="' + (i.current_stock || 0) + '">') + '</div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      fg(f('pickup_mode'), 'Pickup', '<select id="' + f('pickup_mode') + '" onchange="syncForm(\'' + prefix + '\')">' +
+        '<option value="event"' + (i.pickup_mode === 'event' ? ' selected' : '') + '>One set pickup day (holiday kits)</option>' +
+        '<option value="flexible"' + (i.pickup_mode !== 'event' ? ' selected' : '') + '>Customer picks a weekday at the kitchen</option></select>') +
+      fg(f('order_deadline'), 'Ordering closes (optional)', '<input id="' + f('order_deadline') + '" type="datetime-local" value="' + toLocalInput(i.order_deadline) + '">', 'Checkout closes automatically at this time.') +
+    '</div>' +
+    '<div class="event-only"><div class="form-row">' +
+      fg(f('pickup_date'), 'Pickup date', '<input id="' + f('pickup_date') + '" type="date" value="' + esc(i.pickup_date || '') + '">') +
+      fg(f('pickup_window'), 'Pickup time', '<input id="' + f('pickup_window') + '" value="' + esc(i.pickup_window || '') + '" placeholder="4:00 PM to 6:00 PM">') +
+    '</div>' +
+    fg(f('pickup_location'), 'Pickup location', '<input id="' + f('pickup_location') + '" value="' + esc(i.pickup_location || '') + '" placeholder="Drekker Brewhalla, 1702 1st Ave N, Fargo">') +
+    '</div>' +
+    '<div class="form-row">' +
+      fg(f('image_url'), 'Photo link (optional)', '<input id="' + f('image_url') + '" value="' + esc(i.image_url || '') + '" placeholder="e.g. thanksgiving-kit.jpg">', 'Leave blank to show the icon instead.') +
+      fg(f('sort_order'), 'Position on page', '<input id="' + f('sort_order') + '" type="number" value="' + (i.sort_order == null ? 10 : i.sort_order) + '">', 'Lower numbers show first.') +
+    '</div>' +
+    '<div class="form-group" style="margin:1rem 0;"><label class="chk"><input type="checkbox" id="' + f('visible') + '"' + (i.visible ? ' checked' : '') + '> Show on the Shop page</label></div>';
+}
+
+function fg(id, label, control, help) {
+  return '<div class="form-group"><label for="' + id + '">' + label + '</label>' + control + (help ? '<span class="form-help">' + help + '</span>' : '') + '</div>';
+}
+
+function syncForm(prefix) {
+  var mode = document.getElementById(prefix + '-inventory_mode').value;
+  var pick = document.getElementById(prefix + '-pickup_mode').value;
+  var root = document.getElementById(prefix === 'edit' ? 'edit-form' : 'add-form');
+  root.querySelectorAll('.cap-only').forEach(function (e) { e.hidden = mode !== 'max_units'; });
+  root.querySelectorAll('.stock-only').forEach(function (e) { e.hidden = mode !== 'running_stock'; });
+  root.querySelectorAll('.event-only').forEach(function (e) { e.hidden = pick !== 'event'; });
+}
+
+function readForm(prefix) {
+  var v = function (id) { return document.getElementById(prefix + '-' + id).value.trim(); };
+  var c = function (id) { return document.getElementById(prefix + '-' + id).checked; };
+  var price = parseFloat(v('price'));
+  var dl = v('order_deadline');
+  return {
+    name: v('name'), slug: v('slug').toLowerCase(), description: v('description'), details: v('details'),
+    icon: v('icon'), image_url: v('image_url'),
+    price_cents: isNaN(price) ? '' : Math.round(price * 100),
+    taxable: c('taxable'), inventory_mode: v('inventory_mode'),
+    max_units: v('max_units') || 0, current_stock: v('current_stock') || 0,
+    max_per_order: v('max_per_order') || 10, sort_order: v('sort_order') || 0,
+    pickup_mode: v('pickup_mode'), pickup_date: v('pickup_date'), pickup_window: v('pickup_window'),
+    pickup_location: v('pickup_location'),
+    // datetime-local is in this computer's time zone; send it as an exact moment.
+    order_deadline: dl ? new Date(dl).toISOString() : '',
+    visible: c('visible'),
+  };
+}
+
+function openEdit(id) {
+  var item = state.items.find(function (i) { return i.id === id; });
+  editingId = id;
+  document.getElementById('edit-title').textContent = 'Edit: ' + item.name;
+  document.getElementById('edit-form').innerHTML = productForm('edit', item);
+  showMsg('edit-msg', '');
+  syncForm('edit');
+  document.getElementById('edit-modal').style.display = 'flex';
   document.getElementById('edit-name').focus();
 }
-
-function toggleEditFields() {
-  const mode = document.getElementById('edit-mode').value;
-  document.getElementById('edit-max-wrap').style.display   = mode==='max_units'   ?'flex':'none';
-  document.getElementById('edit-stock-wrap').style.display = mode==='running_stock'?'flex':'none';
-}
-
-function closeEditModal() {
-  document.getElementById('edit-modal').style.display='none';
-}
-
-async function saveEditProduct() {
-  const id    = document.getElementById('edit-item-id').value;
-  const price = parseFloat(document.getElementById('edit-price').value);
-  const mode  = document.getElementById('edit-mode').value;
+function closeEdit() { document.getElementById('edit-modal').style.display = 'none'; editingId = null; }
+async function saveEdit() {
   try {
-    await api({
-      action:         'edit_item',
-      item_id:        id,
-      name:           document.getElementById('edit-name').value.trim(),
-      slug:           document.getElementById('edit-slug').value.trim(),
-      description:    document.getElementById('edit-desc').value.trim(),
-      price_cents:    Math.round(price*100),
-      inventory_mode: mode,
-      max_units:      parseInt(document.getElementById('edit-max').value)||0,
-      current_stock:  parseInt(document.getElementById('edit-stock').value)||0,
-      sort_order:     parseInt(document.getElementById('edit-sort').value)||0,
-    });
-    showMsg('edit-modal','Saved!','success');
+    await api({ action: 'update_item', item_id: editingId, item: readForm('edit') });
+    closeEdit();
+    showMsg('global-msg', 'Product saved.', 'success');
     await loadDashboard();
-    setTimeout(closeEditModal, 800);
-  } catch(e) { showMsg('edit-modal','Error: '+e.message,'error'); }
+  } catch (e) { showMsg('edit-msg', e.message, 'error'); }
 }
-
-// Close modal on overlay click
-document.getElementById('edit-modal').addEventListener('click', function(e) {
-  if (e.target===this) closeEditModal();
-});
-
-// ─── UTILS ────────────────────────────────────────────
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+async function saveNewProduct() {
+  try {
+    await api({ action: 'add_item', item: readForm('add') });
+    showMsg('add-msg', 'Product added. Find it on the Products tab.', 'success');
+    document.getElementById('add-form').innerHTML = productForm('add');
+    syncForm('add');
+    await loadDashboard();
+  } catch (e) { showMsg('add-msg', e.message, 'error'); }
 }
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && editingId) closeEdit(); });
 
-function showMsg(scope, msg, type) {
-  let el;
-  if (scope==='global')        el = document.getElementById('global-msg');
-  else if (scope==='add-product') el = document.getElementById('add-product-msg');
-  else if (scope==='edit-modal')  el = document.getElementById('edit-modal-msg');
-  else el = document.getElementById('imsg-'+scope.replace('item-',''));
-  if (!el) return;
-  el.className  = 'smsg smsg-'+type;
-  el.textContent = msg;
-  el.style.display = 'block';
-  if (scope!=='edit-modal') setTimeout(()=>{ el.style.display='none'; }, 4000);
+document.getElementById('add-form').innerHTML = productForm('add');
+syncForm('add');
+
+// Stay signed in for this browser tab
+if (getPw()) {
+  fetch('/.netlify/functions/shop-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'login', password: getPw() }) })
+    .then(function (r) { if (r.ok) enterAdmin(); else setPw(''); });
 }
 </script>
 </body>

@@ -2,3 +2,16 @@
   command   = "npm install"
   functions = "netlify/functions"
   publish   = "."
+
+# The Thanksgiving kit now sells through the shop; send old links there.
+[[redirects]]
+  from   = "/thanksgiving-kit.html"
+  to     = "/shop.html?item=thanksgiving-2026"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/thanksgiving-kit"
+  to     = "/shop.html?item=thanksgiving-2026"
+  status = 301
+  force  = true

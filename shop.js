@@ -1,274 +1,343 @@
 /* ============================================
-   CHEF'S TABLE — Shop JS
-   Stripe + Supabase inventory + Fargo tax
+   CHEF'S TABLE - Shop (cart + Stripe Checkout)
+   Products, prices and limits come from the shop database
+   (/.netlify/functions/shop-inventory). Checkout is created
+   server-side (/.netlify/functions/shop-checkout).
    ============================================ */
+(function () {
+  'use strict';
 
-const SHOP_CONFIG = {
-  stripeKey: 'pk_live_dz0kXjmKLFqS9R50MxSXS3ZT',
-  taxRate: 0.0775,
-  // Fallback item config (used if Supabase not yet set up)
-  items: {
-    easter:  { name: 'Easter Brunch Meal Kit',        priceCents: 8500  },
-    pickles: { name: "House-Made Pickles — Quart Jar", priceCents: 1200  },
+  var CART_KEY = 'ctc_cart_v1';
+  var LAST_KEY = 'ctc_last_order_v1';
+
+  var products = [];
+  var bySlug = {};
+  var cart = loadCart();          // { slug: qty }
+  var pickupDate = '';
+  var minPickup = '';
+  var taxPercent = 7.75;
+  var kitchenPickup = '';
+
+  var productsEl = document.getElementById('shop-products');
+  var cartBody   = document.getElementById('cart-body');
+  var mobileBar  = document.getElementById('mobile-cart-bar');
+  var mobileSum  = document.getElementById('mobile-cart-summary');
+
+  // ---------------------------------------------------------- helpers
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
   }
-};
-
-const stripe   = Stripe(SHOP_CONFIG.stripeKey);
-const elements = stripe.elements();
-const cardEl   = elements.create('card', {
-  style: {
-    base: { fontFamily:"'Lato',sans-serif", fontSize:'16px', color:'#111111', '::placeholder':{color:'#9AA0B0'} },
-    invalid: { color:'#C0392B' }
+  function money(cents) { return '$' + (cents / 100).toFixed(2); }
+  function longDate(ymd) {
+    if (!ymd) return '';
+    return new Date(ymd + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   }
-});
-cardEl.on('change', e => {
-  document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
-});
+  function deadlineText(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' }) +
+      ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' });
+  }
+  function eventPickup(p) {
+    return [longDate(p.pickup_date), p.pickup_window, p.pickup_location].filter(Boolean).join(', ');
+  }
+  function store(key, val) {
+    try { if (val === null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+  }
+  function loadCart() {
+    try { var c = JSON.parse(localStorage.getItem(CART_KEY) || '{}'); return (c && typeof c === 'object') ? c : {}; }
+    catch (e) { return {}; }
+  }
+  function saveCart() { store(CART_KEY, cart); }
 
-let currentItem   = null;
-let inventoryData = {};
+  // ---------------------------------------------------------- success banner
+  function showSuccess() {
+    var params = new URLSearchParams(location.search);
+    if (params.get('order') !== 'success') return;
+    var last = null;
+    try { last = JSON.parse(sessionStorage.getItem(LAST_KEY) || 'null'); } catch (e) {}
+    cart = {}; saveCart();
+    try { sessionStorage.removeItem(LAST_KEY); } catch (e) {}
 
-// ── INVENTORY LOAD ───────────────────────────────────────────
-async function loadInventory() {
-  try {
-    const res  = await fetch('/.netlify/functions/shop-inventory');
-    if (!res.ok) return;
-    const data = await res.json();
-    (data.items||[]).forEach(item => { inventoryData[item.slug] = item; });
-    updateShopUI();
-  } catch(e) { console.warn('Inventory offline mode:', e); }
-}
+    var box = document.getElementById('order-success');
+    var html = '<h2>Thank you! Your order is in.</h2>';
+    if (last && last.lines && last.lines.length) {
+      html += '<p><strong>' + esc(last.lines.join(', ')) + '</strong></p>';
+    }
+    if (last && last.pickup) html += '<p>Pickup: ' + esc(last.pickup) + '</p>';
+    html += '<p>A receipt is on its way to your email from Stripe. Questions? Call <a href="tel:7015663473">701-566-3473</a>.</p>';
+    box.innerHTML = html;
+    box.hidden = false;
+    history.replaceState(null, '', location.pathname);
+    setTimeout(function () { box.focus(); }, 50);
+  }
 
-function updateShopUI() {
-  Object.entries(inventoryData).forEach(([slug, item]) => {
-    const card = document.getElementById('item-' + slug);
-    if (!card) return;
-    if (!item.visible) { card.style.display='none'; return; }
-    const btn = card.querySelector('button[data-order-btn]');
-    if (item.sold_out && btn) {
-      btn.disabled = true; btn.textContent = 'Sold Out';
-    } else if (item.available <= 10 && item.available > 0) {
-      const priceEl = card.querySelector('.shop-item-price');
-      if (priceEl) {
-        const warn = document.createElement('p');
-        warn.style.cssText = 'color:#856404;font-weight:700;font-size:.85rem;margin-bottom:.5rem;';
-        warn.textContent   = 'Only ' + item.available + ' remaining!';
-        priceEl.parentNode.insertBefore(warn, priceEl);
+  // ---------------------------------------------------------- products
+  function renderProducts() {
+    if (!products.length) {
+      productsEl.innerHTML = '<p class="shop-loading">No items are available right now. Check back soon!</p>';
+      return;
+    }
+    productsEl.innerHTML = products.map(function (p) {
+      var isEvent = p.pickup_mode === 'event';
+      var art = p.image_url
+        ? '<img src="' + esc(p.image_url) + '" alt="">'
+        : '<span aria-hidden="true">' + esc(p.icon || '') + '</span>';
+
+      var details = (p.details || '').split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+      var detailsHtml = details.length
+        ? '<ul class="product-details" aria-label="What\u2019s included">' + details.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>'
+        : '';
+
+      var meta = isEvent
+        ? '<p><strong>Pickup:</strong> ' + esc(eventPickup(p)) + '</p>' +
+          (p.order_deadline ? '<p><strong>Order by:</strong> ' + esc(deadlineText(p.order_deadline)) + '</p>' : '')
+        : '<p><strong>Pickup:</strong> Weekdays at our kitchen, 670 4th Ave N, Fargo. 48 hours notice.</p>' +
+          '<p>Ordering with a holiday kit? It comes with your kit pickup.</p>';
+
+      var badge = '';
+      if (p.status === 'closed') badge = '<span class="product-badge badge-closed">Ordering closed</span>';
+      else if (p.status === 'sold_out') badge = '<span class="product-badge badge-closed">Sold out</span>';
+      else if (p.limited) badge = '<span class="product-badge badge-limited">Limited quantity</span>';
+
+      var buy;
+      if (p.status === 'open') {
+        var opts = '';
+        for (var i = 1; i <= p.max_per_order; i++) opts += '<option value="' + i + '">' + i + '</option>';
+        buy = '<label class="sr-only" for="qty-' + esc(p.slug) + '">Quantity of ' + esc(p.name) + '</label>' +
+          '<select id="qty-' + esc(p.slug) + '">' + opts + '</select>' +
+          '<button type="button" class="btn btn-primary" data-add="' + esc(p.slug) + '">Add to Order</button>' +
+          '<span class="added-note" id="added-' + esc(p.slug) + '" aria-live="polite"></span>';
+      } else {
+        buy = '<button type="button" class="btn btn-primary" disabled>' + (p.status === 'closed' ? 'Ordering Closed' : 'Sold Out') + '</button>';
       }
+
+      return '<article class="product' + (isEvent ? ' is-event' : '') + '" id="' + esc(p.slug) + '" aria-labelledby="h-' + esc(p.slug) + '">' +
+        '<div class="product-art">' + art + '</div>' +
+        '<div class="product-body">' +
+          badge +
+          '<h3 id="h-' + esc(p.slug) + '">' + esc(p.name) + '</h3>' +
+          (p.description ? '<p class="product-desc">' + esc(p.description) + '</p>' : '') +
+          detailsHtml +
+          '<div class="product-meta">' + meta + '</div>' +
+          '<div class="product-buy">' +
+            '<div class="product-price">' + money(p.price_cents) + '<small>' + (p.taxable ? 'plus sales tax' : 'no sales tax') + '</small></div>' +
+            buy +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  productsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-add]');
+    if (!btn) return;
+    var slug = btn.getAttribute('data-add');
+    var p = bySlug[slug];
+    if (!p) return;
+    var qty = parseInt(document.getElementById('qty-' + slug).value, 10) || 1;
+    cart[slug] = Math.min((cart[slug] || 0) + qty, p.max_per_order);
+    saveCart();
+    renderCart();
+    var note = document.getElementById('added-' + slug);
+    if (note) {
+      note.textContent = 'Added to your order';
+      setTimeout(function () { note.textContent = ''; }, 2500);
     }
   });
-}
 
-loadInventory();
+  // ---------------------------------------------------------- cart
+  function cartLines() {
+    return Object.keys(cart).filter(function (s) { return bySlug[s] && cart[s] > 0; }).map(function (s) {
+      return { p: bySlug[s], qty: cart[s] };
+    });
+  }
 
-// ── PICKUP DATE VALIDATION ───────────────────────────────────
-// No weekends, 48hr minimum notice
-function getMinPickupDate() {
-  const now     = new Date();
-  const minDate = new Date(now.getTime() + 48 * 60 * 60 * 1000); // +48hrs
+  function reconcileCart() {
+    Object.keys(cart).forEach(function (s) {
+      var p = bySlug[s];
+      if (!p || p.status !== 'open') { delete cart[s]; return; }
+      cart[s] = Math.max(1, Math.min(parseInt(cart[s], 10) || 1, p.max_per_order));
+    });
+    saveCart();
+  }
 
-  // If minDate lands on Saturday (6) push to Monday
-  if (minDate.getDay() === 6) minDate.setDate(minDate.getDate() + 2);
-  // If Sunday (0) push to Monday
-  if (minDate.getDay() === 0) minDate.setDate(minDate.getDate() + 1);
+  function renderCart() {
+    var lines = cartLines();
+    if (!lines.length) {
+      cartBody.innerHTML = '<p class="cart-empty">Your order is empty. Add an item to get started.</p>';
+      mobileBar.hidden = true;
+      document.body.classList.remove('has-cart-bar');
+      return;
+    }
 
-  return minDate;
-}
+    var subtotal = 0, tax = 0, count = 0;
+    var html = '';
+    lines.forEach(function (l) {
+      var lineTotal = l.p.price_cents * l.qty;
+      subtotal += lineTotal;
+      count += l.qty;
+      if (l.p.taxable) tax += Math.round(lineTotal * taxPercent / 100);
+      html += '<div class="cart-line">' +
+        '<span class="cart-line-name">' + esc(l.p.name) + '</span>' +
+        '<span class="cart-line-price">' + money(lineTotal) + '</span>' +
+        '<div class="cart-line-ctrl">' +
+          '<button type="button" class="qty-btn" data-dec="' + esc(l.p.slug) + '" aria-label="One fewer ' + esc(l.p.name) + '"' + (l.qty <= 1 ? ' disabled' : '') + '>&minus;</button>' +
+          '<span class="qty-num" aria-label="Quantity">' + l.qty + '</span>' +
+          '<button type="button" class="qty-btn" data-inc="' + esc(l.p.slug) + '" aria-label="One more ' + esc(l.p.name) + '"' + (l.qty >= l.p.max_per_order ? ' disabled' : '') + '>+</button>' +
+          '<span style="font-size:.8rem;color:var(--gray);">' + money(l.p.price_cents) + ' each</span>' +
+          '<button type="button" class="remove-btn" data-remove="' + esc(l.p.slug) + '">Remove<span class="sr-only"> ' + esc(l.p.name) + '</span></button>' +
+        '</div>' +
+      '</div>';
+    });
 
-function setPickupDateConstraints() {
-  const input = document.getElementById('order-pickup-date');
-  if (!input) return;
-  const min = getMinPickupDate();
-  const fmt  = min.toISOString().split('T')[0];
-  input.min = fmt;
-  input.value = '';
-  // Add listener to block weekend selection
-  input.addEventListener('change', function() {
-    const chosen = new Date(this.value + 'T12:00:00');
-    const day    = chosen.getDay();
-    if (day === 0 || day === 6) {
-      this.setCustomValidity('Pickup is not available on weekends. Please choose a weekday.');
-      this.reportValidity();
-      this.value = '';
+    html += '<div class="cart-sum">' +
+      '<div><span>Subtotal</span><span>' + money(subtotal) + '</span></div>' +
+      (tax ? '<div><span>Sales tax (' + taxPercent + '%)</span><span>' + money(tax) + '</span></div>' : '') +
+      '<div class="total"><span>Total</span><span>' + money(subtotal + tax) + '</span></div>' +
+    '</div>';
+
+    // Pickup
+    var events = lines.filter(function (l) { return l.p.pickup_mode === 'event'; });
+    var eventTexts = events.map(function (l) { return eventPickup(l.p); }).filter(function (t, i, a) { return a.indexOf(t) === i; });
+    var problem = '';
+    if (eventTexts.length > 1) {
+      problem = 'These items have different pickup days. Please check out with one of them, then place a second order for the other.';
+    }
+
+    html += '<div class="cart-pickup"><h3>Pickup</h3>';
+    if (events.length) {
+      html += '<p>' + esc(eventTexts[0]) + '</p>';
+      if (lines.length > events.length) html += '<p>Everything in this order is picked up together.</p>';
     } else {
-      this.setCustomValidity('');
+      html += '<p>Weekdays at our kitchen, ' + esc(kitchenPickup) + '. Please allow 48 hours.</p>' +
+        '<label for="pickup-date">Pickup date</label>' +
+        '<input type="date" id="pickup-date" min="' + esc(minPickup) + '" value="' + esc(pickupDate) + '">';
     }
+    html += '</div>';
+
+    html += '<div id="cart-error" class="cart-error" role="alert"' + (problem ? '' : ' hidden') + '>' + esc(problem) + '</div>';
+    html += '<button type="button" class="btn btn-primary btn-large btn-checkout" id="checkout-btn"' + (problem ? ' disabled' : '') + '>Checkout</button>';
+    html += '<p class="cart-note">Secure payment through Stripe. You&rsquo;ll enter your contact info and any special requests on the next page.</p>';
+
+    cartBody.innerHTML = html;
+    mobileSum.textContent = count + (count === 1 ? ' item' : ' items') + ' \u00b7 ' + money(subtotal + tax);
+    mobileBar.hidden = false;
+    document.body.classList.add('has-cart-bar');
+  }
+
+  cartBody.addEventListener('click', function (e) {
+    var t = e.target.closest('button');
+    if (!t) return;
+    var s;
+    if ((s = t.getAttribute('data-inc'))) { cart[s] = Math.min((cart[s] || 0) + 1, bySlug[s].max_per_order); }
+    else if ((s = t.getAttribute('data-dec'))) { cart[s] = Math.max((cart[s] || 1) - 1, 1); }
+    else if ((s = t.getAttribute('data-remove'))) { delete cart[s]; }
+    else if (t.id === 'checkout-btn') { checkout(t); return; }
+    else return;
+    saveCart();
+    renderCart();
   });
-}
 
-// ── ORDER FORM OPEN ──────────────────────────────────────────
-function openOrderForm(itemKey) {
-  const live   = inventoryData[itemKey];
-  const config = SHOP_CONFIG.items[itemKey];
-
-  if (live && live.sold_out) { alert('Sorry, this item is sold out.'); return; }
-
-  currentItem = {
-    slug:       itemKey,
-    name:       live ? live.name        : (config ? config.name        : itemKey),
-    priceCents: live ? live.price_cents : (config ? config.priceCents  : 0),
-    supabaseId: live ? live.id          : null,
-    available:  live ? live.available   : 999,
-  };
-
-  document.getElementById('order-form-title').textContent        = 'Order: ' + currentItem.name;
-  document.getElementById('order-item-display').textContent      = currentItem.name + ' — $' + (currentItem.priceCents/100).toFixed(2) + ' each (+ 7.75% Fargo sales tax)';
-  document.getElementById('summary-item-label').textContent      = currentItem.name;
-
-  // Pickles callout
-  const callout = document.getElementById('pickles-callout');
-  if (callout) callout.style.display = itemKey === 'pickles' ? 'block' : 'none';
-
-  const qtyInput = document.getElementById('order-qty');
-  qtyInput.max   = Math.min(currentItem.available, 20);
-  qtyInput.value = 1;
-
-  setPickupDateConstraints();
-
-  const formSection = document.getElementById('order-form-section');
-  formSection.hidden = false;
-  formSection.scrollIntoView({ behavior:'smooth', block:'start' });
-
-  setTimeout(() => { try { cardEl.mount('#card-element'); } catch(e){} }, 100);
-  updateSummary();
-}
-
-function closeOrderForm() {
-  document.getElementById('order-form-section').hidden = true;
-  currentItem = null;
-}
-
-// ── SUMMARY UPDATE ───────────────────────────────────────────
-function updateSummary() {
-  if (!currentItem) return;
-  const qty      = parseInt(document.getElementById('order-qty').value) || 1;
-  const subtotal = currentItem.priceCents * qty;
-  const tax      = Math.round(subtotal * SHOP_CONFIG.taxRate);
-  const total    = subtotal + tax;
-
-  document.getElementById('summary-qty').textContent        = qty;
-  document.getElementById('summary-item-price').textContent = '$' + (currentItem.priceCents/100).toFixed(2);
-  document.getElementById('summary-subtotal').textContent   = '$' + (subtotal/100).toFixed(2);
-  document.getElementById('summary-tax').textContent        = '$' + (tax/100).toFixed(2);
-  document.getElementById('summary-total').textContent      = '$' + (total/100).toFixed(2);
-  document.getElementById('order-btn-label').textContent    = 'Pay $' + (total/100).toFixed(2) + ' & Place Order';
-}
-
-document.getElementById('order-qty').addEventListener('input', updateSummary);
-
-// ── SUBMIT ───────────────────────────────────────────────────
-document.getElementById('order-submit').addEventListener('click', async function() {
-  if (!currentItem) return;
-
-  const name       = document.getElementById('order-name').value.trim();
-  const email      = document.getElementById('order-email').value.trim();
-  const phone      = document.getElementById('order-phone').value.trim();
-  const pickupDate = document.getElementById('order-pickup-date').value;
-  const notes      = document.getElementById('order-notes').value.trim();
-  const qty        = parseInt(document.getElementById('order-qty').value) || 1;
-  const statusEl   = document.getElementById('order-status');
-  const submitBtn  = document.getElementById('order-submit');
-
-  // Validation
-  if (!name || !email || !phone || !pickupDate) {
-    const missing = [];
-    if (!name) missing.push('Name');
-    if (!email) missing.push('Email');
-    if (!phone) missing.push('Phone');
-    if (!pickupDate) missing.push('Pickup Date');
-    statusEl.textContent = 'Please fill in: ' + missing.join(', ');
-    statusEl.className   = 'form-status error';
-    statusEl.style.display = 'block';
-    statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  // Confirm not a weekend
-  const chosen = new Date(pickupDate + 'T12:00:00');
-  if (chosen.getDay() === 0 || chosen.getDay() === 6) {
-    statusEl.textContent = 'Pickup is not available on weekends. Please select a weekday.';
-    statusEl.className   = 'form-status error';
-    statusEl.style.display = 'block';
-    return;
-  }
-
-  // 48hr check — compare date strings only to avoid timezone/time issues
-  const minDateStr = getMinPickupDate().toISOString().split('T')[0];
-  if (pickupDate < minDateStr) {
-    const friendly = new Date(minDateStr + 'T12:00:00').toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
-    statusEl.textContent = 'Please allow at least 48 hours notice. Earliest available pickup: ' + friendly + '.';
-    statusEl.className   = 'form-status error';
-    statusEl.style.display = 'block';
-    statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  if (currentItem.available !== 999 && qty > currentItem.available) {
-    statusEl.textContent = 'Only ' + currentItem.available + ' available. Please reduce quantity.';
-    statusEl.className   = 'form-status error';
-    statusEl.style.display = 'block';
-    return;
-  }
-
-  submitBtn.disabled = true;
-  document.getElementById('order-btn-label').textContent = 'Processing…';
-  statusEl.style.display = 'none';
-
-  const subtotalCents = currentItem.priceCents * qty;
-
-  try {
-    // 1. Create PaymentIntent (tax calculated server-side)
-    const intentRes = await fetch('/.netlify/functions/create-payment-intent', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ amount: subtotalCents, item_id: currentItem.supabaseId })
-    });
-    if (!intentRes.ok) throw new Error('Could not initialize payment.');
-    const { clientSecret, total } = await intentRes.json();
-
-    // 2. Confirm with Stripe
-    const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: { card: cardEl }
-    });
-
-    if (error) {
-      document.getElementById('card-errors').textContent = error.message;
-      submitBtn.disabled = false; updateSummary(); return;
+  cartBody.addEventListener('change', function (e) {
+    if (e.target.id !== 'pickup-date') return;
+    var v = e.target.value;
+    var err = '';
+    if (v) {
+      var day = new Date(v + 'T12:00:00').getDay();
+      if (day === 0 || day === 6) err = 'Pickup is weekdays only. Please choose a weekday.';
+      else if (v < minPickup) err = 'Please allow 48 hours. The earliest pickup is ' + longDate(minPickup) + '.';
     }
+    pickupDate = err ? '' : v;
+    if (err) e.target.value = '';
+    showError(err);
+  });
 
-    if (paymentIntent.status === 'succeeded') {
-      // 3. Record in Supabase
-      if (currentItem.supabaseId) {
-        try {
-          await fetch('/.netlify/functions/shop-place-order', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-              payment_intent_id: paymentIntent.id,
-              item_id:    currentItem.supabaseId,
-              item_slug:  currentItem.slug,
-              quantity:   qty,
-              buyer_name: name, buyer_email: email,
-              buyer_phone: phone, pickup_date: pickupDate, notes,
-            })
-          });
-        } catch(e) { console.warn('Order record failed (payment still succeeded):', e); }
-      }
-
-      // 4. Success screen
-      document.getElementById('order-form-section').hidden = true;
-      const succ = document.getElementById('order-success');
-      succ.hidden = false;
-      document.getElementById('order-success-msg').textContent =
-        'Your order of ' + qty + 'x ' + currentItem.name + ' is confirmed for pickup on ' +
-        new Date(pickupDate + 'T12:00:00').toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric'}) +
-        ' at 670 4th Ave N, Fargo. A confirmation will be sent to ' + email + '.';
-      succ.querySelector('h2').focus();
-    }
-
-  } catch(err) {
-    console.error(err);
-    statusEl.textContent = 'Something went wrong. Please try again or call us at 701-566-3473.';
-    statusEl.className   = 'form-status error';
-    statusEl.style.display = 'block';
-    submitBtn.disabled = false; updateSummary();
+  function showError(msg) {
+    var el = document.getElementById('cart-error');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.hidden = !msg;
   }
-});
+
+  function checkout(btn) {
+    var lines = cartLines();
+    if (!lines.length) return;
+    var hasEvent = lines.some(function (l) { return l.p.pickup_mode === 'event'; });
+    if (!hasEvent && !pickupDate) {
+      showError('Please choose a pickup date.');
+      var input = document.getElementById('pickup-date');
+      if (input) input.focus();
+      return;
+    }
+    showError('');
+    btn.disabled = true;
+    btn.textContent = 'Opening secure checkout...';
+
+    var pickupText = hasEvent
+      ? eventPickup(lines.filter(function (l) { return l.p.pickup_mode === 'event'; })[0].p)
+      : longDate(pickupDate) + ', ' + kitchenPickup;
+    try {
+      sessionStorage.setItem(LAST_KEY, JSON.stringify({
+        lines: lines.map(function (l) { return l.qty + ' \u00d7 ' + l.p.name; }),
+        pickup: pickupText,
+      }));
+    } catch (e) {}
+
+    fetch('/.netlify/functions/shop-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: lines.map(function (l) { return { slug: l.p.slug, qty: l.qty }; }),
+        pickup_date: hasEvent ? '' : pickupDate,
+      }),
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.d.url) throw new Error(res.d.error || 'Could not start checkout.');
+        window.location.href = res.d.url;
+      })
+      .catch(function (err) {
+        var msg = err.message + ' If this keeps happening, call 701-566-3473.';
+        // Refresh products in case something sold out, then show the message again.
+        loadProducts().then(function () { showError(msg); });
+      });
+  }
+
+  // ---------------------------------------------------------- load
+  function focusRequested() {
+    var params = new URLSearchParams(location.search);
+    var slug = params.get('item') || (location.hash ? decodeURIComponent(location.hash.slice(1)) : '');
+    if (!slug || !bySlug[slug]) return;
+    var el = document.getElementById(slug);
+    if (!el) return;
+    el.classList.add('highlight');
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () { el.classList.remove('highlight'); }, 4000);
+  }
+
+  function loadProducts() {
+    return fetch('/.netlify/functions/shop-inventory', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (data) {
+        products = data.items || [];
+        bySlug = {};
+        products.forEach(function (p) { bySlug[p.slug] = p; });
+        minPickup = data.min_pickup_date || '';
+        taxPercent = data.tax_percent || 7.75;
+        kitchenPickup = data.kitchen_pickup || '670 4th Ave N, Fargo, ND';
+        if (pickupDate && pickupDate < minPickup) pickupDate = '';
+        reconcileCart();
+        renderProducts();
+        renderCart();
+      })
+      .catch(function () {
+        productsEl.innerHTML = '<p class="shop-loading">We couldn&rsquo;t load the shop right now. Please refresh, or call <a href="tel:7015663473">701-566-3473</a> to order.</p>';
+      });
+  }
+
+  showSuccess();
+  loadProducts().then(focusRequested);
+})();
