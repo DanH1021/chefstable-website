@@ -184,7 +184,7 @@
         '<span class="cart-line-name">' + esc(l.p.name) + '</span>' +
         '<span class="cart-line-price">' + money(lineTotal) + '</span>' +
         '<div class="cart-line-ctrl">' +
-          '<button type="button" class="qty-btn" data-dec="' + esc(l.p.slug) + '" aria-label="One fewer ' + esc(l.p.name) + '"' + (l.qty <= 1 ? ' disabled' : '') + '>&minus;</button>' +
+          '<button type="button" class="qty-btn" data-dec="' + esc(l.p.slug) + '" aria-label="' + (l.qty <= 1 ? 'Remove ' : 'One fewer ') + esc(l.p.name) + '">&minus;</button>' +
           '<span class="qty-num" aria-label="Quantity">' + l.qty + '</span>' +
           '<button type="button" class="qty-btn" data-inc="' + esc(l.p.slug) + '" aria-label="One more ' + esc(l.p.name) + '"' + (l.qty >= l.p.max_per_order ? ' disabled' : '') + '>+</button>' +
           '<span style="font-size:.8rem;color:var(--gray);">' + money(l.p.price_cents) + ' each</span>' +
@@ -233,7 +233,7 @@
     if (!t) return;
     var s;
     if ((s = t.getAttribute('data-inc'))) { cart[s] = Math.min((cart[s] || 0) + 1, bySlug[s].max_per_order); }
-    else if ((s = t.getAttribute('data-dec'))) { cart[s] = Math.max((cart[s] || 1) - 1, 1); }
+    else if ((s = t.getAttribute('data-dec'))) { if ((cart[s] || 1) <= 1) delete cart[s]; else cart[s] = cart[s] - 1; }
     else if ((s = t.getAttribute('data-remove'))) { delete cart[s]; }
     else if (t.id === 'checkout-btn') { checkout(t); return; }
     else return;
