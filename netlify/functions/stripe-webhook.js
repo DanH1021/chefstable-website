@@ -28,8 +28,11 @@ exports.handler = async (event) => {
 
   try {
     if (evt.type === 'checkout.session.completed' || evt.type === 'checkout.session.async_payment_succeeded') {
-      const result = await core.recordCheckoutSession(stripe, evt.data.object);
-      console.log('Recorded', evt.data.object.id, JSON.stringify(result));
+      // Re-read the session from Stripe so its shape matches this code's API version,
+      // whatever API version the webhook destination is set to.
+      const session = await stripe.checkout.sessions.retrieve(evt.data.object.id);
+      const result = await core.recordCheckoutSession(stripe, session);
+      console.log('Recorded', session.id, JSON.stringify(result));
     }
     return { statusCode: 200, body: JSON.stringify({ received: true }) };
   } catch (err) {
