@@ -95,7 +95,7 @@
         ? '<p><strong>Pickup:</strong> ' + esc(eventPickup(p)) + '</p>' +
           (p.order_deadline ? '<p><strong>Order by:</strong> ' + esc(deadlineText(p.order_deadline)) + '</p>' : '')
         : '<p><strong>Pickup:</strong> Weekdays at our kitchen, 670 4th Ave N, Fargo. 48 hours notice.</p>' +
-          '<p>Ordering with a holiday kit? It comes with your kit pickup.</p>';
+          '<p>Ordering with a holiday kit? Pick it up when you pick up your meal!</p>';
 
       var badge = '';
       if (p.status === 'closed') badge = '<span class="product-badge badge-closed">Ordering closed</span>';
